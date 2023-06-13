@@ -49,8 +49,15 @@ app.get("/", function (req, res) {
 });
 
 app.post("/submit-traveler-data", function (req, res) {
-  const { startingPos, destination, firstName, lastName, methodOfTravel } =
-    req.body;
+  const {
+    startingPos,
+    destination,
+    accommodationName,
+    numberOfNights,
+    firstName,
+    lastName,
+    methodOfTravel,
+  } = req.body;
 
   const startPosParams = {
     addressString: startingPos,
@@ -86,6 +93,37 @@ app.post("/submit-traveler-data", function (req, res) {
         console.log("Starting Pos Coords:", startingPosCoords);
         console.log("Destination Coords:", destinationCoords);
 
+        const hotelRateUrl =
+          "http://csa.pss.gov.bc.ca/businesstravel/GetProperties.aspx";
+
+        hotelRateParams = {
+          rad: 20,
+          lat: destinationCoords[1],
+          lng: destinationCoords[0],
+          mr: 20,
+          output: "json",
+          _: Math.floor(Date.now() / 1000) // Get UNIX timestamp
+        };
+
+        const hotelRateReq = sendRequest(hotelRateUrl, "get", hotelRateParams);
+        hotelRateReq.then((hrRes) => {
+          
+          const filteredItems = hrRes.filter(item => item.property_name === accommodationName);
+
+          var rate = 0.0;
+          if (filteredItems.length > 0) {
+            rate = filteredItems[0].single_day;
+          }
+
+          // NOTE: This is not entirely accurate. For some reason the API response does not match what is shown on the page,
+          // Eg: http://csa.pss.gov.bc.ca/businesstravel/Search.aspx?lat=48.428315&lng=-123.364514&rad=20&mr=20&loc=Victoria
+          // So this is a rough calculation. It also seems to be missing some results
+          const totalRate = rate * 2 * numberOfNights;
+          const accommodationTotal = totalRate * 0.2 + totalRate;
+          
+          console.log("Accommodation total:", accommodationTotal)
+        });
+
         const RPConfig = {
           headers: {
             apikey: RP_KEY,
@@ -94,7 +132,7 @@ app.post("/submit-traveler-data", function (req, res) {
 
         const distanceParams = {
           points: startingPosCoords.concat(destinationCoords).join(","),
-          roundTrip: true
+          roundTrip: true,
         };
 
         // // TODO: uncomment once access request approved
