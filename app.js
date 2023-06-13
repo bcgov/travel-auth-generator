@@ -168,7 +168,7 @@ app.post("/submit-traveler-data", function (req, res) {
       console.error("Error making request:", err);
     });
 
-  res.send(req.body);
+  res.send({message: "processing request..."});
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));
