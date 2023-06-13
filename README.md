@@ -8,5 +8,6 @@
 ## Steps
 
 1. Copy and rename `.env.sample` to `.env`. Open `.env` and fill in missing values.
-2. Spin up server by running `nodemon app.js` (or `node app.js`)
-3. Visit home page by visiting `http://localhost:3000`
+2. Install node modules using `npm i`
+3. Spin up server by running `nodemon app.js` (or `node app.js`)
+4. Visit home page by visiting `http://localhost:3000`

@@ -115,9 +115,9 @@ app.post("/submit-traveler-data", function (req, res) {
             rate = filteredItems[0].single_day;
           }
 
-          // NOTE: This is not entirely accurate. For some reason the API response does not match what is shown on the page,
+          // NOTE: This is not entirely accurate. The API response here isn't matching what is shown on the page,
           // Eg: http://csa.pss.gov.bc.ca/businesstravel/Search.aspx?lat=48.428315&lng=-123.364514&rad=20&mr=20&loc=Victoria
-          // So this is a rough calculation. It also seems to be missing some results
+          // So this is a rough calculation. It also seems to be missing some results.
           const totalRate = rate * 2 * numberOfNights;
           const accommodationTotal = totalRate * 0.2 + totalRate;
           
