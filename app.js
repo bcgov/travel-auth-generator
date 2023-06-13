@@ -3,13 +3,6 @@
 
 require("dotenv").config();
 
-// params = {
-//   hello: "hello world!!@#"
-// }
-// const test = new URLSearchParams(params).toString()
-
-// console.log(test);
-
 const express = require("express");
 var bodyParser = require("body-parser");
 var path = require("path");
@@ -54,15 +47,11 @@ app.get("/", function (req, res) {
 });
 
 app.post("/submit-traveler-data", function (req, res) {
-  // console.log("receiving data ...");
-  // console.log("body is ", req.body);
-
-  // TODO: using geocoder, get coordinates of starting pos
-
-  // const { startingPos, destination } = req.body;
+  const { startingPos, destination, firstName, lastName, methodOfTravel } =
+    req.body;
 
   const startPosParams = {
-    addressString: "824 Gillett Street, Prince George, BC",
+    addressString: startingPos,
     locationDescriptor: "any",
     maxResults: 1,
     interpolation: "adaptive",
@@ -77,7 +66,7 @@ app.post("/submit-traveler-data", function (req, res) {
 
   const destinationParams = {
     ...startPosParams,
-    addressString: "525 Superior Street, Victoria, BC",
+    addressString: destination,
   };
 
   axios
@@ -104,46 +93,22 @@ app.post("/submit-traveler-data", function (req, res) {
         const distanceParams = {
           points: startingPosCoords.concat(destinationCoords).join(","),
         };
-        
-        // TODO: uncomment once access request approved
-        const distanceReq = sendRequest(
-          `${RP_URL}/directions.json`,
-          "get",
-          distanceParams,
-          RPConfig
-        );
-        distanceReq.then((rpRes) => {
-          console.log("RP Response:", rpRes);
-        });
+
+        // // TODO: uncomment once access request approved
+        // const distanceReq = sendRequest(
+        //   `${RP_URL}/directions.json`,
+        //   "get",
+        //   distanceParams,
+        //   RPConfig
+        // );
+        // distanceReq.then((rpRes) => {
+        //   console.log("RP Response:", rpRes);
+        // });
       })
     )
     .catch((err) => {
       console.error("Error making request:", err);
     });
-
-  // const startPosParams = new URLSearchParams(params).toString();
-  // var startingPosCoords;
-
-  // axios
-  //   .get(`${GC_URL}/addresses.json?${startPosParams}`)
-  //   .then((res) => (startingPosCoords = res))
-  //   .catch((err) => console.log(err));
-
-  // console.log(startingPosCoords);
-
-  // axios
-  //   .get(RP_URL, config)
-  //   .then((res) => console.log(res))
-  //   .catch((err) => console.log(err));
-
-  // axios
-  //   .get("https://httpbin.org/anything")
-  //   .then((res) => {
-  //     console.log(res);
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
 
   res.send(req.body);
 });
