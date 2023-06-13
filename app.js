@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 const RP_KEY = process.env.ROUTE_PLANNER_API_KEY;
 const RP_URL = "https://router.api.gov.bc.ca";
 const GC_URL = "https://apps.gov.bc.ca/pub/geocoder";
+const HOTEL_URL = "http://csa.pss.gov.bc.ca/businesstravel/GetProperties.aspx";
 
 const MILEAGE_REIMBURSEMENT_PER_KM = 0.61;
 
@@ -42,6 +43,53 @@ function sendRequest(url, method = "get", params = {}, config = {}, data = {}) {
         throw err;
       });
   }
+}
+
+function sendHotelRequest(destinationCoords) {
+  const hotelRateParams = {
+    rad: 20,
+    lat: destinationCoords[1],
+    lng: destinationCoords[0],
+    mr: 20,
+    output: "json",
+    _: Math.floor(Date.now() / 1000), // Get UNIX timestamp
+  };
+  return sendRequest(HOTEL_URL, "get", hotelRateParams);
+}
+
+function sendRoutePlannerRequest(startingPosCoords, destinationCoords) {
+  const RPConfig = {
+    headers: {
+      apikey: RP_KEY,
+    },
+  };
+
+  const distanceParams = {
+    points: startingPosCoords.concat(destinationCoords).join(","),
+    roundTrip: true,
+  };
+
+  return sendRequest(
+    `${RP_URL}/distance.json`,
+    "get",
+    distanceParams,
+    RPConfig
+  );
+}
+
+function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
+  const filteredItems = hotelRes.filter(
+    (item) => item.property_name === accommodationName
+  );
+  var rate = 0.0;
+  if (filteredItems.length > 0) {
+    rate = filteredItems[0].single_day;
+  }
+  // NOTE: This is not entirely accurate. The API response here isn't matching what is shown on the page,
+  // Eg: http://csa.pss.gov.bc.ca/businesstravel/Search.aspx?lat=48.428315&lng=-123.364514&rad=20&mr=20&loc=Victoria
+  // So this is a rough calculation. It also seems to be missing some results.
+  const totalRate = rate * 2 * numberOfNights;
+  return totalRate * 0.2 + totalRate;
 }
 
 app.get("/", function (req, res) {
@@ -92,60 +140,26 @@ app.post("/submit-traveler-data", function (req, res) {
         console.log("Starting Pos Coords:", startingPosCoords);
         console.log("Destination Coords:", destinationCoords);
 
-        const hotelRateUrl =
-          "http://csa.pss.gov.bc.ca/businesstravel/GetProperties.aspx";
+        axios
+          .all([
+            sendHotelRequest(destinationCoords),
+            sendRoutePlannerRequest(startingPosCoords, destinationCoords),
+          ])
+          .then(
+            axios.spread((hotelRes, rpRes) => {
+              const accommodationTotal = getAccommodationCost(
+                hotelRes,
+                accommodationName,
+                numberOfNights
+              );
+              console.log(`Accommodation cost: $${accommodationTotal.toFixed(2)}`);
 
-        hotelRateParams = {
-          rad: 20,
-          lat: destinationCoords[1],
-          lng: destinationCoords[0],
-          mr: 20,
-          output: "json",
-          _: Math.floor(Date.now() / 1000) // Get UNIX timestamp
-        };
-
-        const hotelRateReq = sendRequest(hotelRateUrl, "get", hotelRateParams);
-        hotelRateReq.then((hrRes) => {
-          
-          const filteredItems = hrRes.filter(item => item.property_name === accommodationName);
-
-          var rate = 0.0;
-          if (filteredItems.length > 0) {
-            rate = filteredItems[0].single_day;
-          }
-
-          // NOTE: This is not entirely accurate. The API response here isn't matching what is shown on the page,
-          // Eg: http://csa.pss.gov.bc.ca/businesstravel/Search.aspx?lat=48.428315&lng=-123.364514&rad=20&mr=20&loc=Victoria
-          // So this is a rough calculation. It also seems to be missing some results.
-          const totalRate = rate * 2 * numberOfNights;
-          const accommodationTotal = totalRate * 0.2 + totalRate;
-          
-          console.log("Accommodation total:", accommodationTotal)
-        });
-
-        const RPConfig = {
-          headers: {
-            apikey: RP_KEY,
-          },
-        };
-
-        const distanceParams = {
-          points: startingPosCoords.concat(destinationCoords).join(","),
-          roundTrip: true,
-        };
-
-        // // TODO: uncomment once access request approved
-        // const distanceReq = sendRequest(
-        //   `${RP_URL}/distance.json`,
-        //   "get",
-        //   distanceParams,
-        //   RPConfig
-        // );
-        // distanceReq.then((rpRes) => {
-        //   console.log("RP Response:", rpRes);
-        //   const cost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
-        //   console.log(`Trip cost: $${cost.toFixed(2)}`)
-        // });
+              const mileageTotal =
+                rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
+              console.log(`Mileage cost: $${mileageTotal.toFixed(2)}`);
+            })
+          )
+          .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
       })
     )
     .catch((err) => {
