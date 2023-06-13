@@ -1,8 +1,22 @@
-import { PDFDocument} from "pdf-lib";
-import fs from "fs";
-const convertPDF = document.getElementById('convertPDF');
+const PDFDocument = require("pdf-lib");
+const fs = require("fs");
 
-async function editPdfText() {
+// const convertPDF = document.getElementById('convertPDF');
+
+async function createPdf(pdfData) {
+  
+  console.log("Hello from pdf.js!")
+  console.log(pdfData);
+
+  const {
+    employeeName,
+    numberOfNights,
+    destination,
+    methodOfTravel,
+    accomodationCost,
+    mileageCost,
+  } = pdfData;
+
   var webForm = document.getElementById("myForm");
   var employeeName = webForm.elements["employeeName"].value;
   // var email = webForm.elements["email"].value;
@@ -31,6 +45,10 @@ async function editPdfText() {
   // console.log('Text box names:', textBoxNames);
 }
 
-convertPDF.addEventListener('click', () => {
-  editPdfText()
-});
+module.exports = {
+  createPdf: createPdf
+}
+
+// convertPDF.addEventListener('click', () => {
+//   editPdfText()
+// });

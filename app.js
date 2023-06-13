@@ -7,6 +7,7 @@ const express = require("express");
 var bodyParser = require("body-parser");
 var path = require("path");
 const axios = require("axios");
+var pdf = require("./pdf");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -106,7 +107,7 @@ app.post("/submit-traveler-data", function (req, res) {
     methodOfTravel,
   } = req.body;
 
-  console.log("Employee name:",employeeName);
+  console.log(req.body);
 
   const startPosParams = {
     addressString: startingPos,
@@ -149,16 +150,26 @@ app.post("/submit-traveler-data", function (req, res) {
           ])
           .then(
             axios.spread((hotelRes, rpRes) => {
-              const accommodationTotal = getAccommodationCost(
+              const accommodationCost = getAccommodationCost(
                 hotelRes,
                 accommodationName,
                 numberOfNights
               );
-              console.log(`Accommodation cost: $${accommodationTotal.toFixed(2)}`);
+              console.log(
+                `Accommodation cost: $${accommodationCost.toFixed(2)}`
+              );
 
-              const mileageTotal =
-                rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
-              console.log(`Mileage cost: $${mileageTotal.toFixed(2)}`);
+              const mileageCost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
+              console.log(`Mileage cost: $${mileageCost.toFixed(2)}`);
+
+              pdf.createPdf({
+                employeeName,
+                numberOfNights,
+                destination,
+                methodOfTravel,
+                accommodationCost,
+                mileageCost,
+              });
             })
           )
           .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
@@ -168,7 +179,7 @@ app.post("/submit-traveler-data", function (req, res) {
       console.error("Error making request:", err);
     });
 
-  res.send({message: "processing request..."});
+  res.send({ message: "processing request..." });
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));
