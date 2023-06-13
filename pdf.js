@@ -13,7 +13,7 @@ async function createPdf(pdfData) {
     numberOfNights,
     destination,
     methodOfTravel,
-    accomodationCost,
+    accommodationCost,
     mileageCost,
   } = pdfData;
 
