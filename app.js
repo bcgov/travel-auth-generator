@@ -4,8 +4,15 @@
 require("dotenv").config();
 
 const express = require("express");
+
 var bodyParser = require("body-parser");
+<<<<<<< HEAD
 var path = require("path");
+=======
+
+var path = require("path");
+
+>>>>>>> pdf-poc
 const axios = require("axios");
 
 const app = express();
@@ -96,6 +103,7 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
 
+<<<<<<< HEAD
 app.post("/submit-traveler-data", function (req, res) {
   const {
     startingPos,
@@ -121,6 +129,21 @@ app.post("/submit-traveler-data", function (req, res) {
     minScore: 1,
     provinceCode: "BC",
   };
+=======
+app.post('/submit-traveler-data', function(req, res) {
+  
+  const { employeeName } = req.body;
+  console.log("Employee Name -->" +employeeName)
+  axios.get('https://httpbin.org/anything'
+  ).then (res => {
+    // console.log(res);
+  }).catch(err => {
+    console.log(err);
+  })
+
+  console.log('receiving data ...');
+  // console.log('body is ',req.body);
+>>>>>>> pdf-poc
 
   const destinationParams = {
     ...startPosParams,
