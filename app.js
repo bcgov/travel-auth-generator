@@ -106,6 +106,8 @@ app.post("/submit-traveler-data", function (req, res) {
     methodOfTravel,
   } = req.body;
 
+  console.log(employeeName);
+
   const startPosParams = {
     addressString: startingPos,
     locationDescriptor: "any",
