@@ -1,4 +1,4 @@
-const PDFDocument = require("pdf-lib");
+const pdfLib = require("pdf-lib");
 const fs = require("fs");
 
 // const convertPDF = document.getElementById('convertPDF');
@@ -17,13 +17,13 @@ async function createPdf(pdfData) {
     mileageCost,
   } = pdfData;
 
-  var webForm = document.getElementById("myForm");
-  var employeeName = webForm.elements["employeeName"].value;
+  // var webForm = document.getElementById("myForm");
+  // var employeeName = webForm.elements["employeeName"].value;
   // var email = webForm.elements["email"].value;
   // var message = webForm.elements["message"].value;
   // Load the existing PDF document
   const existingPdfBytes = fs.readFileSync("./travel-auth-form.pdf");
-  const pdfDoc = await PDFDocument.load(existingPdfBytes);
+  const pdfDoc = await pdfLib.PDFDocument.load(existingPdfBytes);
 
   // Access the form containing the fields, modify text field
   const form = pdfDoc.getForm();
