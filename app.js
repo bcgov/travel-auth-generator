@@ -106,7 +106,7 @@ app.post("/submit-traveler-data", function (req, res) {
     methodOfTravel,
   } = req.body;
 
-  console.log(employeeName);
+  console.log("Employee name:",employeeName);
 
   const startPosParams = {
     addressString: startingPos,
