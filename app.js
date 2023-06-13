@@ -14,6 +14,8 @@ const RP_KEY = process.env.ROUTE_PLANNER_API_KEY;
 const RP_URL = "https://router.api.gov.bc.ca";
 const GC_URL = "https://apps.gov.bc.ca/pub/geocoder";
 
+const MILEAGE_REIMBURSEMENT_PER_KM = 0.61;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -92,17 +94,20 @@ app.post("/submit-traveler-data", function (req, res) {
 
         const distanceParams = {
           points: startingPosCoords.concat(destinationCoords).join(","),
+          roundTrip: true
         };
 
         // // TODO: uncomment once access request approved
         // const distanceReq = sendRequest(
-        //   `${RP_URL}/directions.json`,
+        //   `${RP_URL}/distance.json`,
         //   "get",
         //   distanceParams,
         //   RPConfig
         // );
         // distanceReq.then((rpRes) => {
         //   console.log("RP Response:", rpRes);
+        //   const cost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
+        //   console.log(`Trip cost: $${cost.toFixed(2)}`)
         // });
       })
     )
