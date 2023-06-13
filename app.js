@@ -54,8 +54,7 @@ app.post("/submit-traveler-data", function (req, res) {
     destination,
     accommodationName,
     numberOfNights,
-    firstName,
-    lastName,
+    employeeName,
     methodOfTravel,
   } = req.body;
 
