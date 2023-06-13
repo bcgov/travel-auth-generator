@@ -1,5 +1,6 @@
 import { PDFDocument} from "pdf-lib";
 import fs from "fs";
+const convertPDF = document.getElementById('convertPDF');
 
 async function editPdfText() {
   // Load the existing PDF document
@@ -26,4 +27,6 @@ async function editPdfText() {
   // console.log('Text box names:', textBoxNames);
 }
 
-editPdfText();
+convertPDF.addEventListener('click', () => {
+  editPdfText()
+});
