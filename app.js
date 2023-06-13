@@ -1,7 +1,10 @@
 const express = require("express");
+
 var bodyParser = require("body-parser");
-var path = require('path');
-const axios = require('axios');
+
+var path = require("path");
+
+const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,17 +19,17 @@ app.get('/', function(req, res) {
 
 app.post('/submit-traveler-data', function(req, res) {
   
-  const { lastName, firstName } = req.body;
-
+  const { employeeName } = req.body;
+  console.log("Employee Name -->" +employeeName)
   axios.get('https://httpbin.org/anything'
   ).then (res => {
-    console.log(res);
+    // console.log(res);
   }).catch(err => {
     console.log(err);
   })
 
   console.log('receiving data ...');
-  console.log('body is ',req.body);
+  // console.log('body is ',req.body);
 
   res.send(req.body);
 });

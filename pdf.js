@@ -3,6 +3,10 @@ import fs from "fs";
 const convertPDF = document.getElementById('convertPDF');
 
 async function editPdfText() {
+  var webForm = document.getElementById("myForm");
+  var employeeName = webForm.elements["employeeName"].value;
+  // var email = webForm.elements["email"].value;
+  // var message = webForm.elements["message"].value;
   // Load the existing PDF document
   const existingPdfBytes = fs.readFileSync("./travel-auth-form.pdf");
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
@@ -11,7 +15,7 @@ async function editPdfText() {
   const form = pdfDoc.getForm();
 
   const nameField = form.getTextField("topmostSubform[0].Page1[0].EmpName[0]");
-  nameField.setText("Mario");
+  nameField.setText(employeeName);
 
   const modifiedPdfBytes = await pdfDoc.save();
 
