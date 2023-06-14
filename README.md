@@ -10,7 +10,7 @@
 
 ## Startup
 
-1. Copy and rename `.env.sample` to `.env`. Open `.env` and add your `ROUTE_PLANNER_API_KEY`
+1. Copy and rename [`.env.sample`](.env.sample) to `.env`. Open `.env` and add your `ROUTE_PLANNER_API_KEY`
 2. Add a blank, editable travel authorization form to the project root. Rename this form to `travel-auth-form.pdf`
 3. Install node modules using `npm i`
 4. Run application using `npm start`
