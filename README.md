@@ -14,7 +14,7 @@
 2. Add a blank, editable travel authorization form to the project root. Rename this form to `travel-auth-form.pdf`
 3. Install node modules using `npm i`
 4. Run application using `npm start`
-5. Visit home page by visiting `http://localhost:3000`
+5. Visit home page by opening `http://localhost:3000` in a web browser.
 
 ## Usage
 
@@ -22,7 +22,7 @@
 
 Once the application is running, you can generate an individual form by filling in travel details. A travel authorization form will be generated with costs automatically calculated and inserted.
 
-You can also upload a CSV to generate forms for multiple travelers. See the `travel_auth_sample.csv` for a sample.
+You can also upload a CSV to generate forms for multiple travelers. See the [travel_auth_sample.csv](`travel_auth_sample.csv`) for a sample.
 
 ### Output
 
