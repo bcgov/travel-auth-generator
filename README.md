@@ -26,4 +26,4 @@ You can also upload a CSV to generate forms for multiple travelers. See the [tra
 
 ### Output
 
-The generated forms will be output to the project root. They will have the following naming convention: `travel-auth-<employee_name>.pdf`
+The generated forms will output to the project root. They will have the following naming convention: `travel-auth-<employee_name>.pdf`
