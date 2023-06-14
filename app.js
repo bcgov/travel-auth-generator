@@ -93,11 +93,7 @@ function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
   return totalRate * 0.2 + totalRate;
 }
 
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "/index.html"));
-});
-
-app.post("/submit-traveler-data", function (req, res) {
+function processEmployee(employeeData) {
   const {
     startingPos,
     destination,
@@ -105,9 +101,9 @@ app.post("/submit-traveler-data", function (req, res) {
     numberOfNights,
     employeeName,
     methodOfTravel,
-  } = req.body;
+  } = employeeData;
 
-  console.log(req.body);
+  console.log(employeeData);
 
   const startPosParams = {
     addressString: startingPos,
@@ -178,8 +174,25 @@ app.post("/submit-traveler-data", function (req, res) {
     .catch((err) => {
       console.error("Error making request:", err);
     });
+}
 
-  res.send({ message: "processing request..." });
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "/index.html"));
+});
+
+app.post("/process-csv", express.json(), (req, res) => {
+  console.log("Processing csv...");
+  const jsonData = JSON.parse(req.body.data);
+  // Process the JSON data as needed
+  // console.log(jsonData);
+
+  jsonData.forEach(processEmployee);
+  res.send({ message: "Data received and processed successfully!" });
+});
+
+app.post("/submit-traveler-data", function (req, res) {
+  processEmployee(req.body)
+  res.json({ message: "processing request..." });
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));

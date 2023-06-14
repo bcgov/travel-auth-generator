@@ -34,6 +34,49 @@
     <button type="submit">Create Travel Authorization PDF</button>
   </form>
 
+  <h1>CSV to JSON Converter</h1>
+  <form id="upload-form" enctype="multipart/form-data">
+    <input type="file" id="csv-file" name="csv-file" accept=".csv" required>
+    <button type="submit">Upload and Convert</button>
+  </form>
+  
   <script type="module" src="pdf.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js"
+  integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const fileInput = document.getElementById('csv-file');
+      const file = fileInput.files[0];
+
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
+          const jsonData = JSON.stringify(results.data);
+          sendToBackend(jsonData);
+        }
+      });
+    });
+
+    function sendToBackend(data) {
+      fetch('/process-csv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data })
+      })
+      .then(response => response.json())
+      .then(response => {
+        console.log(response);
+        // Handle the response from the backend
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+  </script>
 </body>
 </html>
