@@ -183,16 +183,19 @@ app.get("/", function (req, res) {
 app.post("/process-csv", express.json(), (req, res) => {
   console.log("Processing csv...");
   const jsonData = JSON.parse(req.body.data);
-  // Process the JSON data as needed
-  // console.log(jsonData);
-
   jsonData.forEach(processEmployee);
-  res.send({ message: "Data received and processed successfully!" });
+  res.json({
+    message:
+      "Processing request. Generated forms will be available at project root.",
+  });
 });
 
 app.post("/submit-traveler-data", function (req, res) {
-  processEmployee(req.body)
-  res.json({ message: "processing request..." });
+  processEmployee(req.body);
+  res.json({
+    message:
+      "Processing request. Generated forms will be available at project root.",
+  });
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));
