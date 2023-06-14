@@ -1,7 +1,7 @@
 # Travel Auth Generator
 
 > **Warning**
-> This is a proof of concept and it is not intended for actual usage.
+> This is a proof of concept and it is not intended for actual usage. It is incomplete and requires testing and validation.
 
 ## Prerequisites
 
