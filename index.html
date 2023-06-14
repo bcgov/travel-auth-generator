@@ -8,9 +8,8 @@
   <title>Document</title>
 </head>
 <body>
-  <h1>Hello!</h1>
-</body>
-<body>
+  <h1>Travel Authorization Form Generator</h1>
+  <p>Fill out your details below and a travel authorization form will be generated for you in the project root.</p>
   <form action="/submit-traveler-data" method="post">
     <label for="employeeName">Employee Name:</label>
     <input type="text" id="employeeName" name="employeeName"><br><br>
@@ -21,23 +20,24 @@
     <label for="destination">Destination:</label>
     <input type="text" id="destination" name="destination"><br><br>
     
-    <label for="accommodationName">Accommodation Name:</label><br>
+    <label for="accommodationName">Accommodation Name:</label>
     <input type="text" id="accommodationName" name="accommodationName"><br><br>
     
-    <label for="numberOfNights">Number of Nights:</label><br>
+    <label for="numberOfNights">Number of Nights:</label>
     <input type="text" id="numberOfNights" name="numberOfNights"><br><br>
 
-    <label for="methodOfTravel">Method of Travel:</label><br>
+    <label for="methodOfTravel">Method of Travel:</label>
     <input type="text" id="methodOfTravel" name="methodOfTravel"><br><br>
 
     
     <button type="submit">Create Travel Authorization PDF</button>
   </form>
-
-  <h1>CSV to JSON Converter</h1>
+  <br>
+  <h2>Batch Generate From CSV</h2>
+  <p>You can upload a CSV file with travel details for multiple employees to batch generate travel authorization forms.</p>
   <form id="upload-form" enctype="multipart/form-data">
     <input type="file" id="csv-file" name="csv-file" accept=".csv" required>
-    <button type="submit">Upload and Convert</button>
+    <button type="submit">Upload and Generate</button>
   </form>
   
   <script type="module" src="pdf.js"></script>
