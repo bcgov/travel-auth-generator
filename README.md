@@ -22,7 +22,7 @@
 
 Once the application is running, you can generate an individual form by filling in travel details. A travel authorization form will be generated with costs automatically calculated and inserted.
 
-You can also upload a CSV to generate forms for multiple travelers. See the [travel_auth_sample.csv](`travel_auth_sample.csv`) for a sample.
+You can also upload a CSV to generate forms for multiple travelers. See the [`travel_auth_sample.csv`](travel_auth_sample.csv) for a sample.
 
 ### Output
 
