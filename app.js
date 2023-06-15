@@ -8,6 +8,7 @@ var bodyParser = require("body-parser");
 var path = require("path");
 const axios = require("axios");
 var pdf = require("./pdf");
+const { Console } = require("console");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -97,14 +98,24 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
 
+app.get("/submit-traveler-data", function (req, res) {
+  res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
+})
+
 app.post("/submit-traveler-data", function (req, res) {
   const {
+    employeeName,
+    ministryName,
+    employeeID,
+    position,
+    unit,
+    branch,
     startingPos,
     destination,
     accommodationName,
     numberOfNights,
-    employeeName,
     methodOfTravel,
+    purposeOfTravel,
   } = req.body;
 
   console.log(req.body);
@@ -164,13 +175,23 @@ app.post("/submit-traveler-data", function (req, res) {
 
               pdf.createPdf({
                 employeeName,
-                numberOfNights,
+                ministryName,
+                employeeID,
+                position,
+                unit,
+                branch,
+                startingPos,
                 destination,
+                accommodationName,
+                numberOfNights,
                 methodOfTravel,
+                purposeOfTravel,
                 accommodationCost,
-                mileageCost,
+                mileageCost
               });
             })
+          ).then(
+            console.log("PDF Download starts")
           )
           .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
       })
@@ -180,6 +201,13 @@ app.post("/submit-traveler-data", function (req, res) {
     });
 
   res.send({ message: "processing request..." });
+  res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
+  // res.download('/Users/nirajpatel/Projects/travel-auth-generator/travel-auth-modified.pdf', 'travel-auth-modified.pdf', (err) => {
+  //   if (err) {
+  //     // Handle error
+  //     console.error('Error downloading file:', err);
+  //   }
+  // });
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));

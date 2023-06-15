@@ -6,14 +6,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
   <title>Document</title>
+  <style>
+    .description-input {
+      width: 300px;
+      height: 200px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello!</h1>
+  <h1>Travel Authorization!</h1>
 </body>
 <body>
   <form action="/submit-traveler-data" method="post">
     <label for="employeeName">Employee Name:</label>
     <input type="text" id="employeeName" name="employeeName"><br><br>
+
+    <label for="ministryName">Ministry Name:</label>
+    <input type="text" id="ministryName" name="ministryName"><br><br>
+
+    <label for="employeeID">Employee ID:</label>
+    <input type="text" id="employeeID" name="employeeID"><br><br>
+
+    <label for="position">Position:</label>
+    <input type="text" id="position" name="position"><br><br>
+
+    <label for="unit">Bargaining Unit/Group No:</label>
+    <input type="text" id="unit" name="unit"><br><br>
+
+    <label for="branch">Branch:</label>
+    <input type="text" id="branch" name="branch"><br><br>
 
     <label for="startingPos">Starting Location:</label>
     <input type="text" id="startingPos" name="startingPos"><br><br>
@@ -28,10 +51,17 @@
     <input type="text" id="numberOfNights" name="numberOfNights"><br><br>
 
     <label for="methodOfTravel">Method of Travel:</label><br>
-    <input type="text" id="methodOfTravel" name="methodOfTravel"><br><br>
+    <select id="methodOfTravel" name="methodOfTravel">
+    <option value="option1">Drive</option>
+    <option value="option2">Fly</option>
+    </select>><br><br>
 
-    
+    <label for="purposeOfTravel">Purpose of Travel:</label><br>
+    <textarea class="description-input" id="purposeOfTravel" name="purposeOfTravel"></textarea>
+
     <button type="submit">Create Travel Authorization PDF</button>
+
+    <a href="./travel-auth-form.pdf" download>Download File</a>
   </form>
 
   <script type="module" src="pdf.js"></script>
