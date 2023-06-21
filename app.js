@@ -94,13 +94,23 @@ function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
   return totalRate * 0.2 + totalRate;
 }
 
+app.get("/download", (req, res) => {
+  const file = path.join(__dirname, "public", "travel-auth-modified.pdf");
+  res.download(file, "travel-auth-modified.pdf", (err) => {
+    if (err) {
+      console.error("Error downloading file:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
 
 app.get("/submit-traveler-data", function (req, res) {
   res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
-})
+});
 
 app.post("/submit-traveler-data", function (req, res) {
   const {
@@ -187,12 +197,11 @@ app.post("/submit-traveler-data", function (req, res) {
                 methodOfTravel,
                 purposeOfTravel,
                 accommodationCost,
-                mileageCost
+                mileageCost,
               });
             })
-          ).then(
-            console.log("PDF Download starts")
           )
+          .then(console.log("PDF Download starts"))
           .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
       })
     )
@@ -201,7 +210,8 @@ app.post("/submit-traveler-data", function (req, res) {
     });
 
   res.send({ message: "processing request..." });
-  res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
+  res.send('<script>window.location.href = "/download";</script>');
+  // res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
   // res.download('/Users/nirajpatel/Projects/travel-auth-generator/travel-auth-modified.pdf', 'travel-auth-modified.pdf', (err) => {
   //   if (err) {
   //     // Handle error

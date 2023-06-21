@@ -84,7 +84,7 @@ async function createPdf(pdfData) {
 
   const modifiedPdfBytes = await pdfDoc.save();
 
-  fs.writeFileSync("./travel-auth-modified.pdf", modifiedPdfBytes);
+  fs.writeFileSync("./public/travel-auth-modified.pdf", modifiedPdfBytes);
 
   // Get all fields in the form
   const fields = form.getFields();
