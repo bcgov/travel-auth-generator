@@ -8,6 +8,8 @@ var bodyParser = require("body-parser");
 var path = require("path");
 const axios = require("axios");
 var pdf = require("./pdf");
+const archiver = require('archiver');
+const { Console } = require("console");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -93,14 +95,68 @@ function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
   return totalRate * 0.2 + totalRate;
 }
 
+
+app.get("/download", (req, res) => {
+  const output = fs.createWriteStream('archive.zip');
+  const archive = archiver('zip');
+
+  output.on('close', () => {
+    console.log('Archive created successfully');
+    res.download(path.join(__dirname, 'archive.zip'));
+  });
+
+  archive.on('error', (err) => {
+    console.error('Error creating archive:', err);
+    res.status(500).send({ error: 'Failed to create archive' });
+  });
+
+  // Directory containing the files to be zipped
+  const directoryPath = path.join(__dirname, 'public/forms');
+
+  // Get the list of files in the directory
+  const files = fs.readdirSync(directoryPath);
+
+  // Add each file to the archive
+  files.forEach((file) => {
+    const filePath = path.join(directoryPath, file);
+    archive.file(filePath, { name: file });
+  });
+
+  archive.pipe(output);
+  archive.finalize();
+
+  // const file = path.join(__dirname, "public", "travel-auth-modified.pdf");
+  // res.download(file, "travel-auth-modified.pdf", (err) => {
+  //   if (err) {
+  //     console.error("Error downloading file:", err);
+  //     res.status(500).send("Internal Server Error");
+  //   }
+  // });
+});
+
+
+app.get("/submit-traveler-data", function (req, res) {
+  res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
+});
+
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "/index.html"));
+});
+  
 function processEmployee(employeeData) {
-  const {
-    startingPos,
-    destination,
-    accommodationName,
-    numberOfNights,
-    employeeName,
-    methodOfTravel,
+const {
+  employeeName,
+  ministryName,
+  employeeID,
+  position,
+  unit,
+  branch,
+  startingPos,
+  destination,
+  accommodationName,
+  numberOfNights,
+  methodOfTravel,
+  purposeOfTravel,
   } = employeeData;
 
   console.log(employeeData);
@@ -160,14 +216,23 @@ function processEmployee(employeeData) {
 
               pdf.createPdf({
                 employeeName,
-                numberOfNights,
+                ministryName,
+                employeeID,
+                position,
+                unit,
+                branch,
+                startingPos,
                 destination,
+                accommodationName,
+                numberOfNights,
                 methodOfTravel,
+                purposeOfTravel,
                 accommodationCost,
                 mileageCost,
               });
             })
           )
+          .then(console.log("PDF Download starts"))
           .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
       })
     )
@@ -175,10 +240,6 @@ function processEmployee(employeeData) {
       console.error("Error making request:", err);
     });
 }
-
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "/index.html"));
-});
 
 app.post("/process-csv", express.json(), (req, res) => {
   console.log("Processing csv...");
@@ -192,10 +253,15 @@ app.post("/process-csv", express.json(), (req, res) => {
 
 app.post("/submit-traveler-data", function (req, res) {
   processEmployee(req.body);
-  res.json({
-    message:
-      "Processing request. Generated forms will be available at project root.",
-  });
+  res.send({ message: "processing request..." });
+  res.send('<script>window.location.href = "/download";</script>');
+  // res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
+  // res.download('/Users/nirajpatel/Projects/travel-auth-generator/travel-auth-modified.pdf', 'travel-auth-modified.pdf', (err) => {
+  //   if (err) {
+  //     // Handle error
+  //     console.error('Error downloading file:', err);
+  //   }
+  // });
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));

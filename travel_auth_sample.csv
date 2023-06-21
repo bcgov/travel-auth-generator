@@ -1,3 +1,3 @@
-startingPos,destination,accommodationName,numberOfNights,employeeName,methodOfTravel
-"3387 8 Avenue, Prince George, BC","976 Meares St, Victoria, BC","Accent Inn - Victoria",2,"Mikael Akerfeldt",Drive
-"445 Reid St, Quesnel, BC V2J 2M7","976 Meares St, Victoria, BC","Accent Inn - Victoria",3,"Tomas Haake",Drive
+startingPos,destination,accommodationName,numberOfNights,employeeName,methodOfTravel,ministryName,employeeID,position,unit,branch,purposeOfTravel
+"3387 8 Avenue, Prince George, BC","976 Meares St, Victoria, BC","Accent Inn - Victoria","2","Mikael Akerfeldt",Drive,CITZ,"ID123","Technical Analyst",Unit1,DSS,"October All-staff"
+"445 Reid St, Quesnel, BC V2J 2M7","976 Meares St, Victoria, BC","Accent Inn - Victoria","3","Tomas Haake",Drive,CITZ,"ID456","Software Developer",Unit2,TheBestBranch,"October All-staff"
