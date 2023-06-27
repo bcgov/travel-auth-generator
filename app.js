@@ -8,7 +8,8 @@ var bodyParser = require("body-parser");
 var path = require("path");
 const axios = require("axios");
 var pdf = require("./pdf");
-const archiver = require('archiver');
+const archiver = require("archiver");
+const fs = require("fs");
 const { Console } = require("console");
 
 const app = express();
@@ -95,23 +96,22 @@ function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
   return totalRate * 0.2 + totalRate;
 }
 
-
 app.get("/download", (req, res) => {
-  const output = fs.createWriteStream('archive.zip');
-  const archive = archiver('zip');
+  const output = fs.createWriteStream("archive.zip");
+  const archive = archiver("zip");
 
-  output.on('close', () => {
-    console.log('Archive created successfully');
-    res.download(path.join(__dirname, 'archive.zip'));
+  output.on("close", () => {
+    console.log("Archive created successfully");
+    res.download(path.join(__dirname, "archive.zip"));
   });
 
-  archive.on('error', (err) => {
-    console.error('Error creating archive:', err);
-    res.status(500).send({ error: 'Failed to create archive' });
+  archive.on("error", (err) => {
+    console.error("Error creating archive:", err);
+    res.status(500).send({ error: "Failed to create archive" });
   });
 
   // Directory containing the files to be zipped
-  const directoryPath = path.join(__dirname, 'public/forms');
+  const directoryPath = path.join(__dirname, "public/forms");
 
   // Get the list of files in the directory
   const files = fs.readdirSync(directoryPath);
@@ -134,7 +134,6 @@ app.get("/download", (req, res) => {
   // });
 });
 
-
 app.get("/submit-traveler-data", function (req, res) {
   res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
 });
@@ -142,21 +141,21 @@ app.get("/submit-traveler-data", function (req, res) {
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
-  
+
 function processEmployee(employeeData) {
-const {
-  employeeName,
-  ministryName,
-  employeeID,
-  position,
-  unit,
-  branch,
-  startingPos,
-  destination,
-  accommodationName,
-  numberOfNights,
-  methodOfTravel,
-  purposeOfTravel,
+  const {
+    employeeName,
+    ministryName,
+    employeeID,
+    position,
+    unit,
+    branch,
+    startingPos,
+    destination,
+    accommodationName,
+    numberOfNights,
+    methodOfTravel,
+    purposeOfTravel,
   } = employeeData;
 
   console.log(employeeData);
@@ -241,6 +240,8 @@ const {
     });
 }
 
+function processEmployee(employeeData) {}
+
 app.post("/process-csv", express.json(), (req, res) => {
   console.log("Processing csv...");
   const jsonData = JSON.parse(req.body.data);
@@ -253,7 +254,7 @@ app.post("/process-csv", express.json(), (req, res) => {
 
 app.post("/submit-traveler-data", function (req, res) {
   processEmployee(req.body);
-  res.send({ message: "processing request..." });
+  // res.send({ message: "processing request..." });
   res.send('<script>window.location.href = "/download";</script>');
   // res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
   // res.download('/Users/nirajpatel/Projects/travel-auth-generator/travel-auth-modified.pdf', 'travel-auth-modified.pdf', (err) => {
@@ -265,3 +266,4 @@ app.post("/submit-traveler-data", function (req, res) {
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));
+
