@@ -4,7 +4,6 @@ const fs = require("fs");
 // const convertPDF = document.getElementById('convertPDF');
 
 async function createPdf(pdfData) {
-  console.log("Hello from pdf.js!");
   console.log(pdfData);
 
   const {
@@ -86,13 +85,13 @@ async function createPdf(pdfData) {
 
   fs.writeFileSync(`./public/forms/travel-auth-${employeeName.split(' ').join('_').toLowerCase()}.pdf`, modifiedPdfBytes);
 
-  // Get all fields in the form
-  const fields = form.getFields();
+  // // Get all fields in the form
+  // const fields = form.getFields();
 
-  // List name of fields
-  const textBoxNames = fields.map((textField) => textField.getName());
+  // // List name of fields
+  // const textBoxNames = fields.map((textField) => textField.getName());
 
-  console.log("Text box names:", textBoxNames);
+  // console.log("Text box names:", textBoxNames);
 }
 
 module.exports = {
