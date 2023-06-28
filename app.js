@@ -8,7 +8,7 @@ var bodyParser = require("body-parser");
 var path = require("path");
 const axios = require("axios");
 var pdf = require("./pdf");
-var AdmZip = require('adm-zip');
+var AdmZip = require("adm-zip");
 const fs = require("fs");
 
 const app = express();
@@ -95,9 +95,9 @@ function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
   return totalRate * 0.2 + totalRate;
 }
 
-app.get("/submit-traveler-data", function (req, res) {
-  res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
-});
+// app.get("/submit-traveler-data", function (req, res) {
+//   res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
+// });
 
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/index.html"));
@@ -173,7 +173,7 @@ function processEmployee(employeeData) {
 
               const mileageCost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
               console.log(`Mileage cost: $${mileageCost.toFixed(2)}`);
-              
+
               return pdf.createPdf({
                 employeeName,
                 ministryName,
@@ -200,79 +200,60 @@ function processEmployee(employeeData) {
     });
 }
 
-
 function removeFilesFromDirectory(directoryPath) {
   fs.readdir(directoryPath, (err, files) => {
     if (err) {
-      console.error('Error reading directory:', err);
+      console.error("Error reading directory:", err);
       return;
     }
 
     // Iterate over the files in the directory
-    files.forEach(file => {
+    files.forEach((file) => {
       const filePath = path.join(directoryPath, file);
 
       // Delete the file
-      fs.unlink(filePath, err => {
+      fs.unlink(filePath, (err) => {
         if (err) {
-          console.error('Error deleting file:', filePath, err);
+          console.error("Error deleting file:", filePath, err);
         } else {
-          console.log('File deleted:', filePath);
+          console.log("File deleted:", filePath);
         }
       });
     });
   });
 }
 
-
 app.post("/process-data", express.json(), async (req, res) => {
   console.log("Processing data...");
   const body = req.body;
-  const data = 'data' in body ? JSON.parse(body.data) : [body]
-  // const data = typeof req.body === 'object' ? [req.body] : JSON.parse(req.body.data)
-  // const data = JSON.parse(req.body)
-  // const jsonData = JSON.parse(req.body.data);
-  // const data = Array.isArray(jsonData) ? jsonData : [jsonData]
+  const data = "data" in body ? JSON.parse(body.data) : [body];
   const processingPromises = data.map(processEmployee);
 
   try {
     // wait for all promises to resolve
     const processedData = await Promise.all(processingPromises);
 
+    const formPath = path.join(__dirname, "/public/forms");
+
     var zip = new AdmZip();
     processedData.forEach((item) => {
-      zip.addLocalFile(path.join(__dirname, '/public/forms',item.fileName));
-    })
-    
+      zip.addLocalFile(path.join(formPath, item.fileName));
+    });
+
     var zipFileContents = zip.toBuffer();
-    const fileName = 'uploads.zip';
-    const fileType = 'application/zip';
+    const fileName = "uploads.zip";
+    const fileType = "application/zip";
 
     res.writeHead(200, {
-      'Content-Disposition': `attachment; filename="${fileName}"`,
-      'Content-Type': fileType,
-    })
-    removeFilesFromDirectory(path.join(__dirname, '/public/forms'))
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+      "Content-Type": fileType,
+    });
+    removeFilesFromDirectory(formPath);
     return res.end(zipFileContents);
-  } 
-  catch (error) {
-    console.error('Error processing data:', error);
-    res.status(500).send('Internal Server Error');
+  } catch (error) {
+    console.error("Error processing data:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
-app.post("/submit-traveler-data", function (req, res) {
-  processEmployee(req.body);
-  // res.send({ message: "processing request..." });
-  res.send('<script>window.location.href = "/download";</script>');
-  // res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
-  // res.download('/Users/nirajpatel/Projects/travel-auth-generator/travel-auth-modified.pdf', 'travel-auth-modified.pdf', (err) => {
-  //   if (err) {
-  //     // Handle error
-  //     console.error('Error downloading file:', err);
-  //   }
-  // });
-});
-
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));
-
