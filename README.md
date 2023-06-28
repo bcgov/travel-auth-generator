@@ -24,6 +24,3 @@ Once the application is running, you can generate an individual form by filling 
 
 You can also upload a CSV to generate forms for multiple travelers. See the [`travel_auth_sample.csv`](travel_auth_sample.csv) for a sample.
 
-### Output
-
-The generated forms will output to the project root. They will have the following naming convention: `travel-auth-<employee_name>.pdf`
