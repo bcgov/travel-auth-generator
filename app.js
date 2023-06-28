@@ -8,11 +8,8 @@ var bodyParser = require("body-parser");
 var path = require("path");
 const axios = require("axios");
 var pdf = require("./pdf");
-const archiver = require("archiver");
-const fs = require("fs");
-// var zip = require('express-easy-zip');
-const { Console } = require("console");
 var AdmZip = require('adm-zip');
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +23,6 @@ const MILEAGE_REIMBURSEMENT_PER_KM = 0.61;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
-// app.use(zip())
 
 function sendRequest(url, method = "get", params = {}, config = {}, data = {}) {
   if (params) {
@@ -98,44 +94,6 @@ function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
   const totalRate = rate * 2 * numberOfNights;
   return totalRate * 0.2 + totalRate;
 }
-
-app.get("/download", (req, res) => {
-  const output = fs.createWriteStream("archive.zip");
-  const archive = archiver("zip");
-
-  output.on("close", () => {
-    console.log("Archive created successfully");
-    res.download(path.join(__dirname, "archive.zip"));
-  });
-
-  archive.on("error", (err) => {
-    console.error("Error creating archive:", err);
-    res.status(500).send({ error: "Failed to create archive" });
-  });
-
-  // Directory containing the files to be zipped
-  const directoryPath = path.join(__dirname, "public/forms");
-
-  // Get the list of files in the directory
-  const files = fs.readdirSync(directoryPath);
-
-  // Add each file to the archive
-  files.forEach((file) => {
-    const filePath = path.join(directoryPath, file);
-    archive.file(filePath, { name: file });
-  });
-
-  archive.pipe(output);
-  archive.finalize();
-
-  // const file = path.join(__dirname, "public", "travel-auth-modified.pdf");
-  // res.download(file, "travel-auth-modified.pdf", (err) => {
-  //   if (err) {
-  //     console.error("Error downloading file:", err);
-  //     res.status(500).send("Internal Server Error");
-  //   }
-  // });
-});
 
 app.get("/submit-traveler-data", function (req, res) {
   res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
@@ -216,12 +174,6 @@ function processEmployee(employeeData) {
               const mileageCost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
               console.log(`Mileage cost: $${mileageCost.toFixed(2)}`);
               
-              // const path = './public/forms/'
-              // const fileName = `travel-auth-${employeeName.split(' ').join('_').toLowerCase()}.pdf`
-
-              // const d = {path, fileName}
-              // console.log("datad:", d)
-              // return d
               return pdf.createPdf({
                 employeeName,
                 ministryName,
@@ -249,95 +201,64 @@ function processEmployee(employeeData) {
 }
 
 
-app.post("/process-csv", express.json(), async (req, res) => {
-  console.log("Processing csv...");
-  const jsonData = JSON.parse(req.body.data);
-  const processingPromises = jsonData.map(processEmployee);
+function removeFilesFromDirectory(directoryPath) {
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      console.error('Error reading directory:', err);
+      return;
+    }
 
-  console.log("processingPromises:", processingPromises)
+    // Iterate over the files in the directory
+    files.forEach(file => {
+      const filePath = path.join(directoryPath, file);
+
+      // Delete the file
+      fs.unlink(filePath, err => {
+        if (err) {
+          console.error('Error deleting file:', filePath, err);
+        } else {
+          console.log('File deleted:', filePath);
+        }
+      });
+    });
+  });
+}
+
+
+app.post("/process-data", express.json(), async (req, res) => {
+  console.log("Processing data...");
+  const body = req.body;
+  const data = 'data' in body ? JSON.parse(body.data) : [body]
+  // const data = typeof req.body === 'object' ? [req.body] : JSON.parse(req.body.data)
+  // const data = JSON.parse(req.body)
+  // const jsonData = JSON.parse(req.body.data);
+  // const data = Array.isArray(jsonData) ? jsonData : [jsonData]
+  const processingPromises = data.map(processEmployee);
 
   try {
     // wait for all promises to resolve
-    console.log("before processed data")
     const processedData = await Promise.all(processingPromises);
-    console.log("after processed data")
 
     var zip = new AdmZip();
     processedData.forEach((item) => {
       zip.addLocalFile(path.join(__dirname, '/public/forms',item.fileName));
     })
     
-    // console.log(path.join(__dirname, '/public/forms/travel-auth-mikael_akerfeldt.pdf'))
     var zipFileContents = zip.toBuffer();
     const fileName = 'uploads.zip';
     const fileType = 'application/zip';
 
-    // console.log(zipFileContents)
-    // const file = path.join(__dirname, "public", "forms", "travel-auth-mikael_akerfeldt.pdf");
-    // res.download(file, "travel-auth-mikael_akerfeldt.pdf", (err) => {
-    //   if (err) {
-    //     console.error("Error downloading file:", err);
-    //     res.status(500).send("Internal Server Error");
-    //   }
-    // });
     res.writeHead(200, {
       'Content-Disposition': `attachment; filename="${fileName}"`,
       'Content-Type': fileType,
     })
+    removeFilesFromDirectory(path.join(__dirname, '/public/forms'))
     return res.end(zipFileContents);
-
-    // res.redirect('/download-forms')
-
-    
-
-  //   await res.zip({
-  //     files: [{
-  //         path: path.join(__dirname, './public/forms/'),
-  //         name: 'travel-auth-mikael_akerfeldt.pdf'
-  //     }],
-  //     filename: 'Package.zip'
-  // });
-
-    // // once done processing all items, zip the files and send to the user
-    // const zip = archiver('zip');
-    // zip.on('end', () => res.send());
-    // zip.pipe(res);
-
-    // console.log("processedData:", processedData)
-    // processedData.forEach((item) => {
-    //   console.log("item:", item)
-    //   console.log(path.join(__dirname, item.path, item.fileName))
-    //   zip.file(path.join(__dirname, item.path, item.fileName), { name: item.fileName });
-    // });
-    // zip.finalize();
   } 
   catch (error) {
     console.error('Error processing data:', error);
     res.status(500).send('Internal Server Error');
   }
-});
-
-app.get('/download-forms', function (req, res) {
-  var zip = new AdmZip();
-    zip.addLocalFile(path.join(__dirname, '/public/forms/travel-auth-mikael_akerfeldt.pdf'));
-    console.log(path.join(__dirname, '/public/forms/travel-auth-mikael_akerfeldt.pdf'))
-    var zipFileContents = zip.toBuffer();
-    const fileName = 'uploads.zip';
-    const fileType = 'application/zip';
-
-    // console.log(zipFileContents)
-    // const file = path.join(__dirname, "public", "forms", "travel-auth-mikael_akerfeldt.pdf");
-    // res.download(file, "travel-auth-mikael_akerfeldt.pdf", (err) => {
-    //   if (err) {
-    //     console.error("Error downloading file:", err);
-    //     res.status(500).send("Internal Server Error");
-    //   }
-    // });
-    res.writeHead(200, {
-      'Content-Disposition': `attachment; filename="${fileName}"`,
-      'Content-Type': fileType,
-    })
-    return res.end(zipFileContents);
 });
 
 app.post("/submit-traveler-data", function (req, res) {

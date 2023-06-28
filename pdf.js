@@ -7,8 +7,6 @@ const writeFileAsync = promisify(fs.writeFile);
 // const convertPDF = document.getElementById('convertPDF');
 
 async function createPdf(pdfData) {
-
-
   
   console.log(pdfData);
 

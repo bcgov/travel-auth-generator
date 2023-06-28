@@ -22,7 +22,7 @@
         Fill out your details below and a travel authorization form will be
         generated for you in the project root.
       </p>
-      <form action="/submit-traveler-data" method="post">
+      <form action="/process-data" method="post">
         <label for="employeeName">Employee Name:</label>
         <input type="text" id="employeeName" name="employeeName" /><br /><br />
 
@@ -103,9 +103,7 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
       ></script>
-      <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"
-      ></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"></script>
       <script>
         document
           .getElementById("upload-form")
@@ -125,7 +123,7 @@
           });
 
         function sendToBackend(data) {
-          fetch("/process-csv", {
+          fetch("/process-data", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -137,13 +135,13 @@
               // console.log(response);
               const downloadURL = URL.createObjectURL(blob);
               // Create a link element and trigger the download
-          const link = document.createElement('a');
-          link.href = downloadURL;
-          link.download = 'processedData.zip'; // Specify the desired file name
-          link.click();
+              const link = document.createElement("a");
+              link.href = downloadURL;
+              link.download = "processedData.zip"; // Specify the desired file name
+              link.click();
 
-          // Clean up the temporary URL after the download
-          URL.revokeObjectURL(downloadURL);
+              // Clean up the temporary URL after the download
+              URL.revokeObjectURL(downloadURL);
               // download(response.body,"uploads.zip","application/zip")
               //Handle the response from the backend
             })
