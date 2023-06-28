@@ -7,6 +7,7 @@
 
 - Node / NPM (v14.20.0 / 8.19.2 used for development)
 - [BC Route Planner API Key](https://api.gov.bc.ca/devportal/api-directory/740?preview=false)
+- A blank, editable travel authorization form PDF
 
 ## Startup
 
