@@ -241,7 +241,7 @@ app.post("/process-data", express.json(), async (req, res) => {
     });
 
     var zipFileContents = zip.toBuffer();
-    const fileName = "uploads.zip";
+    const fileName = "travelAuthForms.zip";
     const fileType = "application/zip";
 
     res.writeHead(200, {
