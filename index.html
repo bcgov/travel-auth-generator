@@ -103,6 +103,9 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
       ></script>
+      <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js"
+      ></script>
       <script>
         document
           .getElementById("upload-form")
@@ -129,10 +132,20 @@
             },
             body: JSON.stringify({ data }),
           })
-            .then((response) => response.json())
-            .then((response) => {
-              console.log(response);
-              // Handle the response from the backend
+            .then((response) => response.blob())
+            .then((blob) => {
+              // console.log(response);
+              const downloadURL = URL.createObjectURL(blob);
+              // Create a link element and trigger the download
+          const link = document.createElement('a');
+          link.href = downloadURL;
+          link.download = 'processedData.zip'; // Specify the desired file name
+          link.click();
+
+          // Clean up the temporary URL after the download
+          URL.revokeObjectURL(downloadURL);
+              // download(response.body,"uploads.zip","application/zip")
+              //Handle the response from the backend
             })
             .catch((error) => {
               console.error("Error:", error);

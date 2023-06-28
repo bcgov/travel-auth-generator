@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/bcgov/travel-auth-generator#readme",
   "dependencies": {
+    "adm-zip": "^0.5.10",
     "archiver": "^5.3.1",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",

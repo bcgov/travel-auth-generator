@@ -10,7 +10,9 @@ const axios = require("axios");
 var pdf = require("./pdf");
 const archiver = require("archiver");
 const fs = require("fs");
+// var zip = require('express-easy-zip');
 const { Console } = require("console");
+var AdmZip = require('adm-zip');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +26,7 @@ const MILEAGE_REIMBURSEMENT_PER_KM = 0.61;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
+// app.use(zip())
 
 function sendRequest(url, method = "get", params = {}, config = {}, data = {}) {
   if (params) {
@@ -179,7 +182,7 @@ function processEmployee(employeeData) {
     addressString: destination,
   };
 
-  axios
+  return axios
     .all([
       sendRequest(`${GC_URL}/addresses.json`, "get", startPosParams),
       sendRequest(`${GC_URL}/addresses.json`, "get", destinationParams),
@@ -194,7 +197,7 @@ function processEmployee(employeeData) {
         console.log("Starting Pos Coords:", startingPosCoords);
         console.log("Destination Coords:", destinationCoords);
 
-        axios
+        return axios
           .all([
             sendHotelRequest(destinationCoords),
             sendRoutePlannerRequest(startingPosCoords, destinationCoords),
@@ -212,8 +215,14 @@ function processEmployee(employeeData) {
 
               const mileageCost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
               console.log(`Mileage cost: $${mileageCost.toFixed(2)}`);
+              
+              // const path = './public/forms/'
+              // const fileName = `travel-auth-${employeeName.split(' ').join('_').toLowerCase()}.pdf`
 
-              pdf.createPdf({
+              // const d = {path, fileName}
+              // console.log("datad:", d)
+              // return d
+              return pdf.createPdf({
                 employeeName,
                 ministryName,
                 employeeID,
@@ -231,7 +240,6 @@ function processEmployee(employeeData) {
               });
             })
           )
-          .then(console.log("PDF Download starts"))
           .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
       })
     )
@@ -240,16 +248,96 @@ function processEmployee(employeeData) {
     });
 }
 
-function processEmployee(employeeData) {}
 
-app.post("/process-csv", express.json(), (req, res) => {
+app.post("/process-csv", express.json(), async (req, res) => {
   console.log("Processing csv...");
   const jsonData = JSON.parse(req.body.data);
-  jsonData.forEach(processEmployee);
-  res.json({
-    message:
-      "Processing request. Generated forms will be available at project root.",
-  });
+  const processingPromises = jsonData.map(processEmployee);
+
+  console.log("processingPromises:", processingPromises)
+
+  try {
+    // wait for all promises to resolve
+    console.log("before processed data")
+    const processedData = await Promise.all(processingPromises);
+    console.log("after processed data")
+
+    var zip = new AdmZip();
+    processedData.forEach((item) => {
+      zip.addLocalFile(path.join(__dirname, '/public/forms',item.fileName));
+    })
+    
+    // console.log(path.join(__dirname, '/public/forms/travel-auth-mikael_akerfeldt.pdf'))
+    var zipFileContents = zip.toBuffer();
+    const fileName = 'uploads.zip';
+    const fileType = 'application/zip';
+
+    // console.log(zipFileContents)
+    // const file = path.join(__dirname, "public", "forms", "travel-auth-mikael_akerfeldt.pdf");
+    // res.download(file, "travel-auth-mikael_akerfeldt.pdf", (err) => {
+    //   if (err) {
+    //     console.error("Error downloading file:", err);
+    //     res.status(500).send("Internal Server Error");
+    //   }
+    // });
+    res.writeHead(200, {
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Type': fileType,
+    })
+    return res.end(zipFileContents);
+
+    // res.redirect('/download-forms')
+
+    
+
+  //   await res.zip({
+  //     files: [{
+  //         path: path.join(__dirname, './public/forms/'),
+  //         name: 'travel-auth-mikael_akerfeldt.pdf'
+  //     }],
+  //     filename: 'Package.zip'
+  // });
+
+    // // once done processing all items, zip the files and send to the user
+    // const zip = archiver('zip');
+    // zip.on('end', () => res.send());
+    // zip.pipe(res);
+
+    // console.log("processedData:", processedData)
+    // processedData.forEach((item) => {
+    //   console.log("item:", item)
+    //   console.log(path.join(__dirname, item.path, item.fileName))
+    //   zip.file(path.join(__dirname, item.path, item.fileName), { name: item.fileName });
+    // });
+    // zip.finalize();
+  } 
+  catch (error) {
+    console.error('Error processing data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/download-forms', function (req, res) {
+  var zip = new AdmZip();
+    zip.addLocalFile(path.join(__dirname, '/public/forms/travel-auth-mikael_akerfeldt.pdf'));
+    console.log(path.join(__dirname, '/public/forms/travel-auth-mikael_akerfeldt.pdf'))
+    var zipFileContents = zip.toBuffer();
+    const fileName = 'uploads.zip';
+    const fileType = 'application/zip';
+
+    // console.log(zipFileContents)
+    // const file = path.join(__dirname, "public", "forms", "travel-auth-mikael_akerfeldt.pdf");
+    // res.download(file, "travel-auth-mikael_akerfeldt.pdf", (err) => {
+    //   if (err) {
+    //     console.error("Error downloading file:", err);
+    //     res.status(500).send("Internal Server Error");
+    //   }
+    // });
+    res.writeHead(200, {
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Type': fileType,
+    })
+    return res.end(zipFileContents);
 });
 
 app.post("/submit-traveler-data", function (req, res) {

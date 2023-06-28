@@ -1,9 +1,15 @@
 const pdfLib = require("pdf-lib");
 const fs = require("fs");
+const { promisify } = require('util');
+
+const writeFileAsync = promisify(fs.writeFile);
 
 // const convertPDF = document.getElementById('convertPDF');
 
 async function createPdf(pdfData) {
+
+
+  
   console.log(pdfData);
 
   const {
@@ -22,6 +28,13 @@ async function createPdf(pdfData) {
     accommodationCost,
     mileageCost
   } = pdfData;
+
+  // const path = './public/forms/'
+  // const fileName = `travel-auth-${employeeName.split(' ').join('_').toLowerCase()}.pdf`
+  // console.log("hello from createpdf")
+  // const d = {path, fileName}
+  // console.log("datad:", d)
+  // return d
 
   // var webForm = document.getElementById("myForm");
   // var employeeName = webForm.elements["employeeName"].value;
@@ -82,8 +95,14 @@ async function createPdf(pdfData) {
   totalCost.setText(totalExpense.toFixed(2).toString());
 
   const modifiedPdfBytes = await pdfDoc.save();
+  
+  const path = 'public/forms/'
+  const fileName = `travel-auth-${employeeName.split(' ').join('_').toLowerCase()}.pdf`
 
-  fs.writeFileSync(`./public/forms/travel-auth-${employeeName.split(' ').join('_').toLowerCase()}.pdf`, modifiedPdfBytes);
+  await writeFileAsync(`${path}${fileName}`, modifiedPdfBytes);
+
+  return {path, fileName}
+  
 
   // // Get all fields in the form
   // const fields = form.getFields();
