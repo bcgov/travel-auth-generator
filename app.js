@@ -24,6 +24,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
+function removeFilesFromDirectory(directoryPath) {
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      console.error("Error reading directory:", err);
+      return;
+    }
+
+    // Iterate over the files in the directory
+    files.forEach((file) => {
+      const filePath = path.join(directoryPath, file);
+
+      // Delete the file
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", filePath, err);
+        } else {
+          console.log("File deleted:", filePath);
+        }
+      });
+    });
+  });
+}
+
 function sendRequest(url, method = "get", params = {}, config = {}, data = {}) {
   if (params) {
     url += `?${new URLSearchParams(params).toString()}`;
@@ -198,29 +221,6 @@ function processEmployee(employeeData) {
     .catch((err) => {
       console.error("Error making request:", err);
     });
-}
-
-function removeFilesFromDirectory(directoryPath) {
-  fs.readdir(directoryPath, (err, files) => {
-    if (err) {
-      console.error("Error reading directory:", err);
-      return;
-    }
-
-    // Iterate over the files in the directory
-    files.forEach((file) => {
-      const filePath = path.join(directoryPath, file);
-
-      // Delete the file
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting file:", filePath, err);
-        } else {
-          console.log("File deleted:", filePath);
-        }
-      });
-    });
-  });
 }
 
 app.post("/process-data", express.json(), async (req, res) => {
