@@ -18,11 +18,40 @@
   <body>
     <div class="content">
       <h1>Travel Authorization Form Generator</h1>
-      <p>
-        Fill out your details below and a travel authorization form will be
-        generated for you in the project root.
-      </p>
-      <form action="/process-data" method="post">
+      <p>Fill out your details below which will trigger a download.</p>
+
+      <h2>Configuration</h2>
+
+      <form id="taConfig">
+        <i
+          >Cost per trip. Will generally be multiplied by two, for arrival and
+          departure.</i
+        ><br />
+        <label for="ferryCost" name="ferryCost">Ferry Cost: $</label>
+        <input type="text" name="ferryCost" id="ferryCost" value="50.00" />
+        <br /><br />
+        <label for="mileageRate" name="mileageRate"
+          >Mileage Reimbursement Rate: $</label
+        >
+        <input type="text" name="mileageRate" id="mileageRate" value="0.61" />
+        <br /><br />
+
+        <i
+          >For parking fees, taxi, etc. Calculation: (number of nights + 1) x
+          buffer rate</i
+        ><br />
+        <label for="bufferRate" name="bufferRate">Buffer Rate: $</label>
+        <input
+          type="text"
+          name="bufferRate"
+          id="bufferRate"
+          value="20.00"
+        /><br />
+      </form>
+
+      <h2>Employee Details</h2>
+
+      <form id="employeeInfo">
         <label for="employeeName">Employee Name:</label>
         <input type="text" id="employeeName" name="employeeName" /><br /><br />
 
@@ -66,6 +95,15 @@
           <option value="Drive">Drive</option>
           <option value="Fly">Fly</option></select
         ><br /><br />
+
+        <label for="takingFerry">Taking Ferry?</label>
+        <input
+          type="checkbox"
+          id="takingFerry"
+          name="takingFerry"
+          value="True"
+        />
+        <br /><br />
 
         <label for="purposeOfTravel">Purpose of Travel:</label><br />
         <textarea
@@ -116,13 +154,42 @@
               header: true,
               dynamicTyping: true,
               complete: function (results) {
-                const jsonData = JSON.stringify(results.data);
-                sendToBackend(jsonData);
+                // const jsonData = JSON.stringify(results.data);
+                sendToBackend({ employeeData: results.data });
               },
             });
           });
 
+        document
+          .getElementById("employeeInfo")
+          .addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevents the default form submission behavior
+
+            var form = event.target;
+
+            const formData = getFormData(form.elements);
+
+            sendToBackend({ employeeData: [formData] });
+          });
+
+        function getFormData(arr) {
+          var data = {};
+          for (var i = 0; i < arr.length; i++) {
+            var element = arr[i];
+            if (element.type === "checkbox") {
+              data[element.name] = element.checked;
+              continue;
+            }
+            data[element.name] = element.value;
+          }
+          return data;
+        }
+
         function sendToBackend(data) {
+          data.taConfig = getFormData(
+            document.getElementById("taConfig").elements
+          );
+
           fetch("/process-data", {
             method: "POST",
             headers: {
