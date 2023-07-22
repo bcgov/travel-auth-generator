@@ -16,9 +16,8 @@ const PORT = process.env.PORT || 3000;
 const RP_KEY = process.env.ROUTE_PLANNER_API_KEY;
 const RP_URL = "https://router.api.gov.bc.ca";
 const GC_URL = "https://apps.gov.bc.ca/pub/geocoder";
-const HOTEL_URL = "http://csa.pss.gov.bc.ca/businesstravel/GetProperties.aspx";
 
-const MILEAGE_REIMBURSEMENT_PER_KM = 0.61;
+const MILEAGE_COST_PER_KM = process.env.MILEAGE_COST_PER_KM || 0.61;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -71,16 +70,20 @@ function sendRequest(url, method = "get", params = {}, config = {}, data = {}) {
   }
 }
 
-function sendHotelRequest(destinationCoords) {
-  const hotelRateParams = {
-    rad: 20,
-    lat: destinationCoords[1],
-    lng: destinationCoords[0],
-    mr: 20,
-    output: "json",
-    _: Math.floor(Date.now() / 1000), // Get UNIX timestamp
-  };
-  return sendRequest(HOTEL_URL, "get", hotelRateParams);
+function convertToBool(value) {
+  if (typeof value === "boolean") {
+    // If the input is already a boolean, return it as is
+    return value;
+  } else if (typeof value === "string") {
+    // If the input is a string, convert it to lowercase and check if it represents "true"
+    return value.toLowerCase() === "true";
+  } else if (typeof value === "number") {
+    // If the input is a number, return true for any non-zero number, and false for zero
+    return value !== 0;
+  } else {
+    // For any other data type, return false
+    return false;
+  }
 }
 
 function sendRoutePlannerRequest(startingPosCoords, destinationCoords) {
@@ -103,46 +106,35 @@ function sendRoutePlannerRequest(startingPosCoords, destinationCoords) {
   );
 }
 
-function getAccommodationCost(hotelRes, accommodationName, numberOfNights) {
-  const filteredItems = hotelRes.filter(
-    (item) => item.property_name === accommodationName
-  );
-  var rate = 0.0;
-  if (filteredItems.length > 0) {
-    rate = filteredItems[0].single_day;
-  }
-  // NOTE: This is not entirely accurate. The API response here isn't matching what is shown on the page,
-  // Eg: http://csa.pss.gov.bc.ca/businesstravel/Search.aspx?lat=48.428315&lng=-123.364514&rad=20&mr=20&loc=Victoria
-  // So this is a rough calculation. It also seems to be missing some results.
-  const totalRate = rate * 2 * numberOfNights;
-  return totalRate * 0.2 + totalRate;
-}
-
-// app.get("/submit-traveler-data", function (req, res) {
-//   res.sendFile(path.join(__dirname, "/submit-travel-details.html"));
-// });
-
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/index.html"));
 });
 
-function processEmployee(employeeData) {
+function processEmployee(employeeData, taConfig) {
   const {
-    employeeName,
-    ministryName,
-    employeeID,
-    position,
-    unit,
-    branch,
     startingPos,
     destination,
-    accommodationName,
     numberOfNights,
     methodOfTravel,
-    purposeOfTravel,
+    takingFerry,
   } = employeeData;
 
-  console.log(employeeData);
+  const ferryCost = convertToBool(takingFerry)
+    ? parseFloat(taConfig.ferryCost) * 2
+    : undefined;
+  const bufferCost =
+    (parseInt(numberOfNights) + 1) * parseFloat(taConfig.bufferRate);
+
+  const pdfData = {
+    ...employeeData,
+    bufferCost,
+    ferryCost,
+    transportationCost: null,
+  };
+
+  if (methodOfTravel !== "Drive") {
+    return pdf.createPdf(pdfData);
+  }
 
   const startPosParams = {
     addressString: startingPos,
@@ -179,43 +171,20 @@ function processEmployee(employeeData) {
         console.log("Destination Coords:", destinationCoords);
 
         return axios
-          .all([
-            sendHotelRequest(destinationCoords),
-            sendRoutePlannerRequest(startingPosCoords, destinationCoords),
-          ])
+          .all([sendRoutePlannerRequest(startingPosCoords, destinationCoords)])
           .then(
-            axios.spread((hotelRes, rpRes) => {
-              const accommodationCost = getAccommodationCost(
-                hotelRes,
-                accommodationName,
-                numberOfNights
-              );
-              console.log(
-                `Accommodation cost: $${accommodationCost.toFixed(2)}`
-              );
-
-              const mileageCost = rpRes.distance * MILEAGE_REIMBURSEMENT_PER_KM;
+            axios.spread((rpRes) => {
+              const mileageCost = rpRes.distance * MILEAGE_COST_PER_KM;
               console.log(`Mileage cost: $${mileageCost.toFixed(2)}`);
 
-              return pdf.createPdf({
-                employeeName,
-                ministryName,
-                employeeID,
-                position,
-                unit,
-                branch,
-                startingPos,
-                destination,
-                accommodationName,
-                numberOfNights,
-                methodOfTravel,
-                purposeOfTravel,
-                accommodationCost,
-                mileageCost,
-              });
+              pdfData.transportationCost = mileageCost;
+
+              return pdf.createPdf(pdfData);
             })
           )
-          .catch((hrrpErr) => console.error("Error Making Request", hrrpErr));
+          .catch((err) => {
+            console.error("Error making request:", err);
+          });
       })
     )
     .catch((err) => {
@@ -226,12 +195,22 @@ function processEmployee(employeeData) {
 app.post("/process-data", express.json(), async (req, res) => {
   console.log("Processing data...");
   const body = req.body;
-  const data = "data" in body ? JSON.parse(body.data) : [body];
-  const processingPromises = data.map(processEmployee);
+
+  const employeeData = body.data.employeeData;
+  const taConfig = body.data.taConfig;
+
+  // const data = "data" in body ? JSON.parse(body.data) : [body];
+  const processingPromises = employeeData.map((empData) =>
+    processEmployee(empData, taConfig)
+  );
+
+  return;
 
   try {
     // wait for all promises to resolve
     const processedData = await Promise.all(processingPromises);
+
+    return;
 
     const formPath = path.join(__dirname, "/public/forms");
 
