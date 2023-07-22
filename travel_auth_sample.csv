@@ -1,4 +1,4 @@
-startingPos,destination,accommodationName,numberOfNights,employeeName,methodOfTravel,ministryName,employeeID,position,unit,branch,purposeOfTravel
-"3387 8 Avenue, Prince George, BC","976 Meares St, Victoria, BC","Accent Inn - Victoria","2","Mikael Akerfeldt",Drive,CITZ,"ID123","Technical Analyst",BCGEU,DSS,"October All-staff"
-"445 Reid St, Quesnel, BC V2J 2M7","976 Meares St, Victoria, BC","Accent Inn - Victoria","3","Tomas Haake",Drive,CITZ,"ID456","Software Engineer",BCGEU,TheBestBranch,"Another All-staff"
-"2070 Harvey Ave, Kelowna, BC V1Y 8J8","976 Meares St, Victoria, BC","Accent Inn - Victoria","2","Devin Townsend",Drive,CITZ,"ID789","Swell Guy",BCNU,Ground Branch,"I am tired"
+startingPos,destination,accommodationCost,numberOfNights,employeeName,methodOfTravel,ministryName,employeeID,position,unit,branch,purposeOfTravel,takingFerry
+"3387 8 Avenue, Prince George, BC","976 Meares St, Victoria, BC",123.45,"2","Mikael Akerfeldt",Drive,CITZ,"ID123","Technical Analyst",BCGEU,DSS,"October All-staff",true
+"445 Reid St, Quesnel, BC V2J 2M7","976 Meares St, Victoria, BC",67.79,"3","Tomas Haake",Drive,CITZ,"ID456","Software Engineer",BCGEU,TheBestBranch,"Another All-staff",true
+"2070 Harvey Ave, Kelowna, BC V1Y 8J8","976 Meares St, Victoria, BC",258.96,"2","Devin Townsend",Drive,CITZ,"ID789","Swell Guy",BCNU,Ground Branch,"I am tired",false
