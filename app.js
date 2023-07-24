@@ -119,9 +119,14 @@ function processEmployee(employeeData, taConfig) {
     takingFerry,
   } = employeeData;
 
+  console.log("Ferry:")
+  console.log("Taking ferry?", takingFerry)
+  console.log("Taking ferry converted to bool:", convertToBool(takingFerry))
+  console.log("Ferry value", parseFloat(taConfig.ferryCost) * 2)
+
   const ferryCost = convertToBool(takingFerry)
     ? parseFloat(taConfig.ferryCost) * 2
-    : undefined;
+    : 0.0;
   const bufferCost =
     (parseInt(numberOfNights) + 1) * parseFloat(taConfig.bufferRate);
 
@@ -129,7 +134,7 @@ function processEmployee(employeeData, taConfig) {
     ...employeeData,
     bufferCost,
     ferryCost,
-    transportationCost: null,
+    transportationCost: 0.0,
   };
 
   if (methodOfTravel !== "Drive") {

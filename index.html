@@ -76,11 +76,11 @@
         <label for="destination">Destination:</label>
         <input type="text" id="destination" name="destination" /><br /><br />
 
-        <label for="accommodationName">Accommodation Name:</label>
+        <label for="accommodationCost">Accommodation Cost (total): $</label>
         <input
           type="text"
-          id="accommodationName"
-          name="accommodationName"
+          id="accommodationCost"
+          name="accommodationCost"
         /><br /><br />
 
         <label for="numberOfNights">Number of Nights:</label>
@@ -97,12 +97,20 @@
         ><br /><br />
 
         <label for="takingFerry">Taking Ferry?</label>
-        <input
-          type="checkbox"
-          id="takingFerry"
-          name="takingFerry"
-          value="True"
-        />
+        <input type="checkbox" id="takingFerry" name="takingFerry" />
+        <br /><br />
+
+        <p>Travel Type</p>
+        <input type="checkbox" id="outOfProvince" name="outOfProvince" />
+        <label for="outOfProvince">Out-of-Province</label>
+        <br />
+
+        <input type="checkbox" id="outOfCanada" name="outOfCanada" />
+        <label for="outOfCanada">Out-of-Canada</label>
+        <br />
+        <input type="checkbox" id="inProvince" name="inProvince" />
+        <label for="inProvince">In-Province</label>
+
         <br /><br />
 
         <label for="purposeOfTravel">Purpose of Travel:</label><br />
