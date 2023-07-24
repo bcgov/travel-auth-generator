@@ -127,19 +127,22 @@ function processEmployee(employeeData, taConfig) {
   const ferryCost = convertToBool(takingFerry)
     ? parseFloat(taConfig.ferryCost) * 2
     : 0.0;
-  const bufferCost =
-    (parseInt(numberOfNights) + 1) * parseFloat(taConfig.bufferRate);
 
   const outOfProvince = convertToBool(employeeData.outOfProvince);
   const outOfCanada = convertToBool(employeeData.outOfCanada);
   const inProvince = convertToBool(employeeData.inProvince);
+
+  const parkingCost =
+    methodOfTravel === "Drive"
+      ? (parseInt(numberOfNights) + 1) * parseFloat(taConfig.parkingCost)
+      : 0.0;
 
   const pdfData = {
     ...employeeData,
     outOfProvince,
     outOfCanada,
     inProvince,
-    bufferCost,
+    parkingCost,
     ferryCost,
     numberOfNights,
     transportationCost: 0.0,

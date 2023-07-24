@@ -44,7 +44,7 @@ async function createPdf(pdfData) {
   } = pdfData;
 
   const accommodationCost = parseFloat(pdfData.accommodationCost);
-  const bufferCost = parseFloat(pdfData.bufferCost);
+  const parkingCost = parseFloat(pdfData.parkingCost);
   const ferryCost = parseFloat(pdfData.ferryCost);
   const transportationCost = parseFloat(pdfData.transportationCost);
   const numberOfNights = parseInt(pdfData.numberOfNights);
@@ -142,8 +142,8 @@ async function createPdf(pdfData) {
     addOtherExpense("Ferry", ferryCost);
   }
 
-  if (bufferCost) {
-    addOtherExpense("Buffer", bufferCost);
+  if (parkingCost) {
+    addOtherExpense("Parking", parkingCost);
   }
 
   const outProvinceCheckbox = form.getCheckBox(
