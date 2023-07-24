@@ -119,19 +119,21 @@ function processEmployee(employeeData, taConfig) {
     takingFerry,
   } = employeeData;
 
-  console.log("Ferry:")
-  console.log("Taking ferry?", takingFerry)
-  console.log("Taking ferry converted to bool:", convertToBool(takingFerry))
-  console.log("Ferry value", parseFloat(taConfig.ferryCost) * 2)
-
   const ferryCost = convertToBool(takingFerry)
     ? parseFloat(taConfig.ferryCost) * 2
     : 0.0;
   const bufferCost =
     (parseInt(numberOfNights) + 1) * parseFloat(taConfig.bufferRate);
 
+  const outOfProvince = convertToBool(employeeData.outOfProvince)
+  const outOfCanada = convertToBool(employeeData.outOfCanada)
+  const inProvince = convertToBool(employeeData.inProvince)
+
   const pdfData = {
     ...employeeData,
+    outOfProvince,
+    outOfCanada,
+    inProvince,
     bufferCost,
     ferryCost,
     transportationCost: 0.0,
@@ -209,15 +211,13 @@ app.post("/process-data", express.json(), async (req, res) => {
     processEmployee(empData, taConfig)
   );
 
-  return;
-
   try {
+    const formPath = path.join(__dirname, "/public/forms");
+    removeFilesFromDirectory(formPath);
+    
     // wait for all promises to resolve
     const processedData = await Promise.all(processingPromises);
 
-    return;
-
-    const formPath = path.join(__dirname, "/public/forms");
 
     var zip = new AdmZip();
     processedData.forEach((item) => {

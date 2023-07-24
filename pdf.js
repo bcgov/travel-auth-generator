@@ -34,6 +34,13 @@ async function createPdf(pdfData) {
     destination,
     methodOfTravel,
     purposeOfTravel,
+    outOfProvince,
+    outOfCanada,
+    inProvince,
+    vote,
+    dateDeparting,
+    dateReturning,
+    orgPaying
   } = pdfData;
 
   const accommodationCost = parseFloat(pdfData.accommodationCost);
@@ -47,6 +54,14 @@ async function createPdf(pdfData) {
 
   // Access the form containing the fields, modify text field
   const form = pdfDoc.getForm();
+
+  // // Get all fields in the form
+  // const fields = form.getFields();
+
+  // // List name of fields
+  // const textBoxNames = fields.map((textField) => textField.getName());
+
+  // console.log("Text box names:", textBoxNames);
 
   const nameField = form.getTextField("topmostSubform[0].Page1[0].EmpName[0]");
   nameField.setText(employeeName);
@@ -131,12 +146,59 @@ async function createPdf(pdfData) {
     addOtherExpense("Buffer", bufferCost);
   }
 
+  const outProvinceCheckbox = form.getCheckBox(
+    "topmostSubform[0].Page1[0].OutProvince[0]"
+  );
+  outOfProvince ? outProvinceCheckbox.check() : outProvinceCheckbox.uncheck();
+
+  const outCanadaCheckbox = form.getCheckBox(
+    "topmostSubform[0].Page1[0].OutCanada[0]"
+  );
+  outOfCanada ? outCanadaCheckbox.check() : outCanadaCheckbox.uncheck();
+
+  const inProvinceCheckbox = form.getCheckBox(
+    "topmostSubform[0].Page1[0].InProvince[0]"
+  );
+  inProvince ? inProvinceCheckbox.check() : inProvinceCheckbox.uncheck();
+  
+  if (vote) {
+    const voteField = form.getTextField(
+      "topmostSubform[0].Page1[0].Vote[0]"
+    );
+    voteField.setText(vote.toString());
+  }
+  if (dateDeparting) {
+    const dateDepartingField = form.getTextField(
+      "topmostSubform[0].Page1[0].DateDepart[0]"
+    );
+    dateDepartingField.setText(dateDeparting.toString());
+  }
+
+  if (dateReturning) {
+    const dateReturningField = form.getTextField(
+      "topmostSubform[0].Page1[0].DateReturn[0]"
+    );
+    dateReturningField.setText(dateReturning.toString());
+  }
+
+  const orgPayingNACheckbox = form.getCheckBox(
+    "topmostSubform[0].Page1[0].IdentNA[0]"
+  );
+
+  const orgPayingTextbox = form.getTextField(
+    "topmostSubform[0].Page1[0].IdentOrg[0]"
+  );
+
+  if (orgPaying && orgPaying.toLowerCase() !== "n/a") {
+    orgPayingTextbox.setText(orgPaying.toString());
+  }
+
+  !orgPaying || orgPaying.toLowerCase() === "n/a" ? orgPayingNACheckbox.check() : orgPayingNACheckbox.uncheck()
+
   const totalExpense =
     accommodationCost +
     transportationCost +
     Object.values(otherExpenses).reduce((a, b) => a + b, 0);
-
-console.log(totalExpense);
 
   const subTotalField = form.getTextField(
     "topmostSubform[0].Page1[0].SubTotal[0]"
@@ -159,14 +221,6 @@ console.log(totalExpense);
   await writeFileAsync(`${path}${fileName}`, modifiedPdfBytes);
 
   return { path, fileName };
-
-  // // Get all fields in the form
-  // const fields = form.getFields();
-
-  // // List name of fields
-  // const textBoxNames = fields.map((textField) => textField.getName());
-
-  // console.log("Text box names:", textBoxNames);
 }
 
 module.exports = {
