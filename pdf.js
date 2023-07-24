@@ -40,7 +40,7 @@ async function createPdf(pdfData) {
     vote,
     dateDeparting,
     dateReturning,
-    orgPaying
+    orgPaying,
   } = pdfData;
 
   const accommodationCost = parseFloat(pdfData.accommodationCost);
@@ -160,11 +160,9 @@ async function createPdf(pdfData) {
     "topmostSubform[0].Page1[0].InProvince[0]"
   );
   inProvince ? inProvinceCheckbox.check() : inProvinceCheckbox.uncheck();
-  
+
   if (vote) {
-    const voteField = form.getTextField(
-      "topmostSubform[0].Page1[0].Vote[0]"
-    );
+    const voteField = form.getTextField("topmostSubform[0].Page1[0].Vote[0]");
     voteField.setText(vote.toString());
   }
   if (dateDeparting) {
@@ -193,7 +191,9 @@ async function createPdf(pdfData) {
     orgPayingTextbox.setText(orgPaying.toString());
   }
 
-  !orgPaying || orgPaying.toLowerCase() === "n/a" ? orgPayingNACheckbox.check() : orgPayingNACheckbox.uncheck()
+  !orgPaying || orgPaying.toLowerCase() === "n/a"
+    ? orgPayingNACheckbox.check()
+    : orgPayingNACheckbox.uncheck();
 
   const totalExpense =
     accommodationCost +
@@ -213,10 +213,10 @@ async function createPdf(pdfData) {
   const modifiedPdfBytes = await pdfDoc.save();
 
   const path = "public/forms/";
-  const fileName = `travel-auth-${employeeName
+  const fileName = `${employeeName
     .split(" ")
     .join("_")
-    .toLowerCase()}-${makeId(ID_LEN)}.pdf`;
+    .toLowerCase()}-travel_auth-${makeId(ID_LEN)}.pdf`;
 
   await writeFileAsync(`${path}${fileName}`, modifiedPdfBytes);
 

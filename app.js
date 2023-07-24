@@ -72,18 +72,24 @@ function sendRequest(url, method = "get", params = {}, config = {}, data = {}) {
 
 function convertToBool(value) {
   if (typeof value === "boolean") {
-    // If the input is already a boolean, return it as is
     return value;
   } else if (typeof value === "string") {
-    // If the input is a string, convert it to lowercase and check if it represents "true"
     return value.toLowerCase() === "true";
   } else if (typeof value === "number") {
-    // If the input is a number, return true for any non-zero number, and false for zero
     return value !== 0;
   } else {
-    // For any other data type, return false
     return false;
   }
+}
+
+function getNumberOfNights(dateDeparting, dateReturning) {
+  const date1 = new Date(dateDeparting);
+  const date2 = new Date(dateReturning);
+
+  const timeDifferenceInMs = Math.abs(date2 - date1);
+  const daysDifference = Math.ceil(timeDifferenceInMs / (24 * 60 * 60 * 1000));
+
+  return daysDifference;
 }
 
 function sendRoutePlannerRequest(startingPosCoords, destinationCoords) {
@@ -111,13 +117,12 @@ app.get("/", function (req, res) {
 });
 
 function processEmployee(employeeData, taConfig) {
-  const {
-    startingPos,
-    destination,
-    numberOfNights,
-    methodOfTravel,
-    takingFerry,
-  } = employeeData;
+  const { startingPos, destination, methodOfTravel, takingFerry } =
+    employeeData;
+
+  const numberOfNights = parseInt(employeeData.numberOfNights);
+  // // Perhaps later we can calculate the number of nights:
+  // const numberOfNights = getNumberOfNights(dateDeparting, dateReturning)
 
   const ferryCost = convertToBool(takingFerry)
     ? parseFloat(taConfig.ferryCost) * 2
@@ -125,9 +130,9 @@ function processEmployee(employeeData, taConfig) {
   const bufferCost =
     (parseInt(numberOfNights) + 1) * parseFloat(taConfig.bufferRate);
 
-  const outOfProvince = convertToBool(employeeData.outOfProvince)
-  const outOfCanada = convertToBool(employeeData.outOfCanada)
-  const inProvince = convertToBool(employeeData.inProvince)
+  const outOfProvince = convertToBool(employeeData.outOfProvince);
+  const outOfCanada = convertToBool(employeeData.outOfCanada);
+  const inProvince = convertToBool(employeeData.inProvince);
 
   const pdfData = {
     ...employeeData,
@@ -136,6 +141,7 @@ function processEmployee(employeeData, taConfig) {
     inProvince,
     bufferCost,
     ferryCost,
+    numberOfNights,
     transportationCost: 0.0,
   };
 
@@ -214,10 +220,9 @@ app.post("/process-data", express.json(), async (req, res) => {
   try {
     const formPath = path.join(__dirname, "/public/forms");
     removeFilesFromDirectory(formPath);
-    
+
     // wait for all promises to resolve
     const processedData = await Promise.all(processingPromises);
-
 
     var zip = new AdmZip();
     processedData.forEach((item) => {

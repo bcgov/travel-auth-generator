@@ -22,6 +22,8 @@
 
       <h2>Configuration</h2>
 
+      <p>The following will be used for every travel authorization form.</p>
+
       <form id="taConfig">
         <i
           >Cost per trip. Will generally be multiplied by two, for arrival and
@@ -46,60 +48,12 @@
           name="bufferRate"
           id="bufferRate"
           value="20.00"
-        /><br />
+        /><br /><br />
       </form>
 
       <h2>Employee Details</h2>
 
       <form id="employeeInfo">
-        <label for="employeeName">Employee Name:</label>
-        <input type="text" id="employeeName" name="employeeName" /><br /><br />
-
-        <label for="ministryName">Ministry Name:</label>
-        <input type="text" id="ministryName" name="ministryName" /><br /><br />
-
-        <label for="employeeID">Employee ID:</label>
-        <input type="text" id="employeeID" name="employeeID" /><br /><br />
-
-        <label for="position">Position:</label>
-        <input type="text" id="position" name="position" /><br /><br />
-
-        <label for="unit">Bargaining Unit/Group No:</label>
-        <input type="text" id="unit" name="unit" /><br /><br />
-
-        <label for="branch">Branch:</label>
-        <input type="text" id="branch" name="branch" /><br /><br />
-
-        <label for="startingPos">Starting Location:</label>
-        <input type="text" id="startingPos" name="startingPos" /><br /><br />
-
-        <label for="destination">Destination:</label>
-        <input type="text" id="destination" name="destination" /><br /><br />
-
-        <label for="accommodationCost">Accommodation Cost (total): $</label>
-        <input
-          type="text"
-          id="accommodationCost"
-          name="accommodationCost"
-        /><br /><br />
-
-        <label for="numberOfNights">Number of Nights:</label>
-        <input
-          type="text"
-          id="numberOfNights"
-          name="numberOfNights"
-        /><br /><br />
-
-        <label for="methodOfTravel">Method of Travel:</label><br />
-        <select id="methodOfTravel" name="methodOfTravel">
-          <option value="Drive">Drive</option>
-          <option value="Fly">Fly</option></select
-        ><br /><br />
-
-        <label for="takingFerry">Taking Ferry?</label>
-        <input type="checkbox" id="takingFerry" name="takingFerry" />
-        <br /><br />
-
         <div>Travel Type:</div>
         <input type="checkbox" id="outOfProvince" name="outOfProvince" />
         <label for="outOfProvince">Out-of-Province</label>
@@ -113,21 +67,50 @@
 
         <br /><br />
 
-        <label for="vote">Vote</label>
+        <label for="ministryName">Ministry Name:</label>
+        <input type="text" id="ministryName" name="ministryName" /><br /><br />
+
+        <label for="vote">Vote: </label>
         <input type="text" id="vote" name="vote" /><br /><br />
 
-        <label for="dateDeparting">Date Departing:</label>
+        <label for="employeeName">Employee Name:</label>
+        <input type="text" id="employeeName" name="employeeName" /><br /><br />
+
+        <label for="employeeID">Employee ID:</label>
+        <input type="text" id="employeeID" name="employeeID" /><br /><br />
+
+        <label for="position">Position:</label>
+        <input type="text" id="position" name="position" /><br /><br />
+
+        <label for="unit">Bargaining Unit/Group No:</label>
+        <input type="text" id="unit" name="unit" /><br /><br />
+
+        <label for="branch">Branch:</label>
+        <input type="text" id="branch" name="branch" /><br /><br />
+
+        <label for="dateDeparting"
+          >Date Departing <i>(format: YYYY/MM/DD)</i>:
+        </label>
         <input
           type="text"
           id="dateDeparting"
           name="dateDeparting"
         /><br /><br />
 
-        <label for="dateReturning">Date Returning:</label>
+        <label for="dateReturning"
+          >Date Returning <i>(format: YYYY/MM/DD)</i>:
+        </label>
         <input
           type="text"
           id="dateReturning"
           name="dateReturning"
+        /><br /><br />
+
+        <label for="numberOfNights">Number of Nights:</label>
+        <input
+          type="text"
+          id="numberOfNights"
+          name="numberOfNights"
         /><br /><br />
 
         <i>Leave blank if not applicable.</i><br />
@@ -136,6 +119,29 @@
           costs:</label
         >
         <input type="text" id="orgPaying" name="orgPaying" /><br /><br />
+
+        <label for="startingPos">Starting Location:</label>
+        <input type="text" id="startingPos" name="startingPos" /><br /><br />
+
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" /><br /><br />
+
+        <label for="accommodationCost">Total Accommodation Cost: $</label>
+        <input
+          type="text"
+          id="accommodationCost"
+          name="accommodationCost"
+        /><br /><br />
+
+        <label for="methodOfTravel">Method of Travel:</label><br />
+        <select id="methodOfTravel" name="methodOfTravel">
+          <option value="Drive">Drive</option>
+          <option value="Fly">Fly</option></select
+        ><br /><br />
+
+        <label for="takingFerry">Taking Ferry?</label>
+        <input type="checkbox" id="takingFerry" name="takingFerry" />
+        <br /><br />
 
         <label for="purposeOfTravel">Purpose of Travel:</label><br />
         <textarea
