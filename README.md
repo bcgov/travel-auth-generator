@@ -1,7 +1,7 @@
 # Travel Authorization Form Generator
 
-> **Warning**
-> This is a proof of concept and it is not intended for actual usage. It is incomplete and requires testing and validation.
+> [!WARNING]
+> This is a proof of concept and is not yet intended for production usage. It is incomplete and requires testing and validation.
 
 ## Prerequisites
 
@@ -23,5 +23,4 @@
 
 Once the application is running, you can generate an individual form by filling in travel details. A travel authorization form will be generated with costs automatically calculated and inserted.
 
-You can also upload a CSV to generate forms for multiple travelers. See the [`travel_auth_sample.csv`](travel_auth_sample.csv) for a sample.
-
+You can upload a CSV to generate forms for multiple travelers. Select `Browse...`, select your input .csv, and then select `Upload and Generate` to begin. After some time, a download will begin containing a zip with all TA forms. See the [`travel_auth_sample.csv`](travel_auth_sample.csv) for a sample of how the input .csv should look. You can also use this file for testing.
