@@ -2,3 +2,5 @@
 node_modules/
 .env
 *.pdf
+Travel Auths - Input (BCDS All Staff '23)*.csv
+*-input.csv

@@ -124,18 +124,17 @@ function processEmployee(employeeData, taConfig) {
   // // Perhaps later we can calculate the number of nights:
   // const numberOfNights = getNumberOfNights(dateDeparting, dateReturning)
 
-  const ferryCost = convertToBool(takingFerry)
-    ? parseFloat(taConfig.ferryCost) * 2
-    : 0.0;
-
   const outOfProvince = convertToBool(employeeData.outOfProvince);
   const outOfCanada = convertToBool(employeeData.outOfCanada);
   const inProvince = convertToBool(employeeData.inProvince);
 
-  const parkingCost =
-    methodOfTravel === "Drive"
-      ? (parseInt(numberOfNights) + 1) * parseFloat(taConfig.parkingCost)
-      : 0.0;
+  // const parkingCost =
+  //   methodOfTravel === "Drive"
+  //     ? (parseInt(numberOfNights) + 1) * parseFloat(taConfig.parkingCost)
+  //     : 0.0;
+
+  const parkingCost = parseFloat(employeeData.parking)
+  const taxiUberCost = parseFloat(employeeData.taxiUber)
 
   const pdfData = {
     ...employeeData,
@@ -143,12 +142,19 @@ function processEmployee(employeeData, taConfig) {
     outOfCanada,
     inProvince,
     parkingCost,
-    ferryCost,
+    taxiUberCost,
     numberOfNights,
     transportationCost: 0.0,
   };
 
-  if (methodOfTravel !== "Drive") {
+  const ferryCost = convertToBool(takingFerry)
+  ? parseFloat(taConfig.ferryCost) * 2
+  : 0.0;
+
+  pdfData.transportationCost += ferryCost;
+
+  const onlyProcessMOT = ["Drive", "Drive & Ferry"]
+  if (!onlyProcessMOT.includes(methodOfTravel)) {
     return pdf.createPdf(pdfData);
   }
 
@@ -193,7 +199,7 @@ function processEmployee(employeeData, taConfig) {
               const mileageCost = rpRes.distance * MILEAGE_COST_PER_KM;
               console.log(`Mileage cost: $${mileageCost.toFixed(2)}`);
 
-              pdfData.transportationCost = mileageCost;
+              pdfData.transportationCost += mileageCost;
 
               return pdf.createPdf(pdfData);
             })
@@ -211,8 +217,9 @@ function processEmployee(employeeData, taConfig) {
 app.post("/process-data", express.json(), async (req, res) => {
   console.log("Processing data...");
   const body = req.body;
-
+  
   const employeeData = body.data.employeeData;
+  
   const taConfig = body.data.taConfig;
 
   // const data = "data" in body ? JSON.parse(body.data) : [body];
@@ -233,7 +240,7 @@ app.post("/process-data", express.json(), async (req, res) => {
     });
 
     var zipFileContents = zip.toBuffer();
-    const fileName = "travelAuthForms.zip";
+    const fileName = `travelAuthForms.zip`;
     const fileType = "application/zip";
 
     res.writeHead(200, {
@@ -249,3 +256,5 @@ app.post("/process-data", express.json(), async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Express app running on port ${PORT}!`));
+
+

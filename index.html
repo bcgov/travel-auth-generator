@@ -18,9 +18,11 @@
   <body>
     <div class="content">
       <h1>Travel Authorization Form Generator</h1>
-      <p>Fill out your details below which will trigger a download.</p>
+      <p>Update the Configuration section as needed, then complete the Batch Generate or Individual Employee section.</p>
 
       <h2>Configuration</h2>
+
+      <p>The following configuration will be applied to all TA forms.</p>
 
       <form id="taConfig">
         <label for="ferryCost" name="ferryCost">Ferry Cost <i>(cost per trip)</i>: $</label>
@@ -42,7 +44,25 @@
         /><br /><br />
       </form>
 
-      <h2>Employee Details</h2>
+      <h2>Batch Generate Travel Auth Forms From CSV</h2>
+      <p>
+        You can upload a CSV file with travel details for multiple employees to
+        batch generate travel authorization forms.
+      </p>
+      <form id="upload-form" enctype="multipart/form-data">
+        <input
+          type="file"
+          id="csv-file"
+          name="csv-file"
+          accept=".csv"
+          required
+        />
+        <button type="submit">Upload and Generate</button>
+      </form>
+
+      <br />
+
+      <h2>Create Individual Employee Travel Auth Form</h2>
 
       <form id="employeeInfo">
         <div>Travel Type:</div>
@@ -145,22 +165,6 @@
         <button type="submit">Create Travel Authorization PDF</button>
 
         <!-- <a href="./travel-auth-form.pdf" download>Download File</a> -->
-      </form>
-      <br />
-      <h2>Batch Generate From CSV</h2>
-      <p>
-        You can upload a CSV file with travel details for multiple employees to
-        batch generate travel authorization forms.
-      </p>
-      <form id="upload-form" enctype="multipart/form-data">
-        <input
-          type="file"
-          id="csv-file"
-          name="csv-file"
-          accept=".csv"
-          required
-        />
-        <button type="submit">Upload and Generate</button>
       </form>
 
       <script type="module" src="pdf.js"></script>

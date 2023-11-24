@@ -6,23 +6,7 @@ const writeFileAsync = promisify(fs.writeFile);
 
 // const convertPDF = document.getElementById('convertPDF');
 
-const ID_LEN = 6;
-
-function makeId(length) {
-  let result = "";
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-}
-
 async function createPdf(pdfData) {
-  console.log(pdfData);
 
   const {
     employeeName,
@@ -41,11 +25,11 @@ async function createPdf(pdfData) {
     dateDeparting,
     dateReturning,
     orgPaying,
+    taxiUberCost,
   } = pdfData;
 
   const accommodationCost = parseFloat(pdfData.accommodationCost);
   const parkingCost = parseFloat(pdfData.parkingCost);
-  const ferryCost = parseFloat(pdfData.ferryCost);
   const transportationCost = parseFloat(pdfData.transportationCost);
   const numberOfNights = parseInt(pdfData.numberOfNights);
 
@@ -121,29 +105,29 @@ async function createPdf(pdfData) {
     transportationCostField.setText(transportationCost.toFixed(2).toString());
   }
 
-  var otherFieldIndex = 0;
+  var otherExpenseFieldIndex = 1;
   otherExpenses = {};
 
   function addOtherExpense(fieldName, value) {
     const keyField = form.getTextField(
-      `topmostSubform[0].Page1[0].Other[${otherFieldIndex}]`
+      `topmostSubform[0].Page1[0].Other[${otherExpenseFieldIndex}]`
     );
     const valueField = form.getTextField(
-      `topmostSubform[0].Page1[0].Amount[${5 + otherFieldIndex}]`
+      `topmostSubform[0].Page1[0].Amount[${5 + otherExpenseFieldIndex}]`
     ); // "Other" amount field begins at index 5
 
     keyField.setText(fieldName.toString());
     valueField.setText(value.toFixed(2).toString());
-    otherFieldIndex++;
+    otherExpenseFieldIndex++;
     otherExpenses[fieldName] = value;
-  }
-
-  if (ferryCost) {
-    addOtherExpense("Ferry", ferryCost);
   }
 
   if (parkingCost) {
     addOtherExpense("Parking", parkingCost);
+  }
+
+  if (taxiUberCost) {
+    addOtherExpense("Taxi/Uber", taxiUberCost);
   }
 
   const outProvinceCheckbox = form.getCheckBox(
@@ -213,10 +197,7 @@ async function createPdf(pdfData) {
   const modifiedPdfBytes = await pdfDoc.save();
 
   const path = "public/forms/";
-  const fileName = `${employeeName
-    .split(" ")
-    .join("_")
-    .toLowerCase()}-travel_auth-${makeId(ID_LEN)}.pdf`;
+  const fileName = `TA IP Victoria October 2023 Divisional All Staff - ${employeeName}.pdf`;
 
   await writeFileAsync(`${path}${fileName}`, modifiedPdfBytes);
 
